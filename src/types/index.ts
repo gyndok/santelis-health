@@ -187,7 +187,29 @@ export interface Prospect {
   qualificationScore: number;
   scrapedData?: Record<string, unknown>;
   demoSlug?: string;
-  outreachStatus: "discovered" | "qualified" | "demo-generated" | "emailed" | "opened" | "clicked" | "signed-up" | "converted" | "opted-out";
+  outreachStatus: "discovered" | "no-website" | "qualified" | "demo-generated" | "emailed" | "opened" | "clicked" | "signed-up" | "converted" | "opted-out";
   emailSentAt?: string;
   createdAt: string;
+}
+
+export interface ScrapedWebsiteData {
+  providerNames: string[];
+  services: string[];
+  aboutText: string;
+  contactInfo: {
+    phone?: string;
+    email?: string;
+    fax?: string;
+    address?: string;
+  };
+  officeHours: string[];
+  metaTags: {
+    title?: string;
+    description?: string;
+    viewport?: string;
+  };
+  hasSSL: boolean;
+  hasStructuredData: boolean;
+  hasViewportMeta: boolean;
+  rawMarkdown: string;
 }
