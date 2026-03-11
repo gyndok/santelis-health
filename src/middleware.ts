@@ -2,15 +2,21 @@ import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 export async function middleware(request: NextRequest) {
-  // Only protect /admin routes
-  if (!request.nextUrl.pathname.startsWith("/admin")) {
+  const { pathname } = request.nextUrl;
+
+  // Only protect /admin and /dashboard routes
+  const isAdmin = pathname.startsWith("/admin");
+  const isDashboard = pathname.startsWith("/dashboard");
+
+  if (!isAdmin && !isDashboard) {
     return NextResponse.next();
   }
 
-  // Allow the login page and auth callback
+  // Allow login pages and auth callback
   if (
-    request.nextUrl.pathname === "/admin/login" ||
-    request.nextUrl.pathname === "/auth/callback"
+    pathname === "/admin/login" ||
+    pathname === "/dashboard/login" ||
+    pathname === "/auth/callback"
   ) {
     return NextResponse.next();
   }
@@ -47,21 +53,24 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    const loginUrl = new URL("/admin/login", request.url);
+    const loginPath = isAdmin ? "/admin/login" : "/dashboard/login";
+    const loginUrl = new URL(loginPath, request.url);
     return NextResponse.redirect(loginUrl);
   }
 
-  // Optional: restrict to specific email(s)
-  const allowedEmails = process.env.ADMIN_EMAILS?.split(",").map((e) => e.trim());
-  if (allowedEmails && allowedEmails.length > 0 && !allowedEmails.includes(user.email || "")) {
-    const loginUrl = new URL("/admin/login", request.url);
-    loginUrl.searchParams.set("error", "unauthorized");
-    return NextResponse.redirect(loginUrl);
+  // Admin routes: restrict to ADMIN_EMAILS
+  if (isAdmin) {
+    const allowedEmails = process.env.ADMIN_EMAILS?.split(",").map((e) => e.trim());
+    if (allowedEmails && allowedEmails.length > 0 && !allowedEmails.includes(user.email || "")) {
+      const loginUrl = new URL("/admin/login", request.url);
+      loginUrl.searchParams.set("error", "unauthorized");
+      return NextResponse.redirect(loginUrl);
+    }
   }
 
   return response;
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/dashboard/:path*"],
 };
