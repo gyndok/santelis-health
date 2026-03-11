@@ -134,7 +134,7 @@ CREATE TABLE prospects (
   demo_slug            TEXT,
   outreach_status      TEXT NOT NULL DEFAULT 'discovered'
                          CHECK (outreach_status IN (
-                           'discovered', 'qualified', 'demo-generated', 'emailed',
+                           'discovered', 'no-website', 'qualified', 'demo-generated', 'emailed',
                            'opened', 'clicked', 'signed-up', 'converted', 'opted-out'
                          )),
   email_sent_at        TIMESTAMPTZ,
