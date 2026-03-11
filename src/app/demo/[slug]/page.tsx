@@ -4,9 +4,10 @@ import Link from "next/link";
 import type { PracticeConfig } from "@/types";
 import { specialtyConfigs } from "@/config/specialties";
 import GeneratedSite from "@/components/generated-site/GeneratedSite";
+import { getPracticeBySlug } from "@/lib/get-practice";
 
 // ---------------------------------------------------------------------------
-// Mock data — Klein's Women's Care (OBGYN demo)
+// Mock data — fallback when Supabase is unavailable
 // ---------------------------------------------------------------------------
 
 const obgynPalette = specialtyConfigs.obgyn.palette;
@@ -170,6 +171,16 @@ const mockConfigs: Record<string, PracticeConfig> = {
 };
 
 // ---------------------------------------------------------------------------
+// Helper — fetch from Supabase, fall back to mock data
+// ---------------------------------------------------------------------------
+
+async function getConfig(slug: string): Promise<PracticeConfig | undefined> {
+  const dbConfig = await getPracticeBySlug(slug);
+  if (dbConfig) return dbConfig;
+  return mockConfigs[slug];
+}
+
+// ---------------------------------------------------------------------------
 // Next.js page
 // ---------------------------------------------------------------------------
 
@@ -179,7 +190,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const config = mockConfigs[slug];
+  const config = await getConfig(slug);
   if (!config) return { title: "Not Found" };
 
   return {
@@ -196,7 +207,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function DemoPage({ params }: PageProps) {
   const { slug } = await params;
-  const config = mockConfigs[slug];
+  const config = await getConfig(slug);
 
   if (!config) {
     notFound();

@@ -147,6 +147,8 @@ const DEFAULT_HOURS: OfficeHours = {
 export default function OnboardingWizard() {
   const router = useRouter();
   const [step, setStep] = useState(1);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState<string | null>(null);
 
   const [form, setForm] = useState<FormState>({
     practiceName: "",
@@ -1124,13 +1126,56 @@ export default function OnboardingWizard() {
           </div>
         </div>
 
+        {/* Error message */}
+        {generateError && (
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-sm text-red-700">{generateError}</p>
+          </div>
+        )}
+
         {/* Generate button */}
         <button
           type="button"
-          onClick={() => router.push("/demo/preview")}
-          className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3.5 rounded-lg transition-colors text-lg"
+          disabled={isGenerating}
+          onClick={async () => {
+            setGenerateError(null);
+            setIsGenerating(true);
+            try {
+              const summary = buildSummary();
+              const res = await fetch("/api/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(summary),
+              });
+              const data = await res.json();
+              if (!res.ok) {
+                setGenerateError(data.error || "Something went wrong. Please try again.");
+                return;
+              }
+              router.push(`/demo/${data.slug}`);
+            } catch {
+              setGenerateError("Network error. Please check your connection and try again.");
+            } finally {
+              setIsGenerating(false);
+            }
+          }}
+          className={`w-full font-semibold py-3.5 rounded-lg transition-colors text-lg ${
+            isGenerating
+              ? "bg-teal-400 cursor-not-allowed text-white/80"
+              : "bg-teal-600 hover:bg-teal-700 text-white"
+          }`}
         >
-          Generate My Website
+          {isGenerating ? (
+            <span className="inline-flex items-center gap-2">
+              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              Generating your website...
+            </span>
+          ) : (
+            "Generate My Website"
+          )}
         </button>
       </div>
     );
