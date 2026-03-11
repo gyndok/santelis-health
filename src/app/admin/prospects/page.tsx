@@ -663,37 +663,7 @@ function ProspectRow({
               <div>
                 <h4 className="font-semibold text-gray-700 mb-2">Scraped Data</h4>
                 {p.scraped_data ? (
-                  <div className="space-y-1 text-gray-600">
-                    {(p.scraped_data as Record<string, unknown>).providerNames && (
-                      <div>
-                        Providers:{" "}
-                        {(
-                          (p.scraped_data as Record<string, unknown>)
-                            .providerNames as string[]
-                        ).join(", ") || "—"}
-                      </div>
-                    )}
-                    {(p.scraped_data as Record<string, unknown>).services && (
-                      <div>
-                        Services:{" "}
-                        {(
-                          (p.scraped_data as Record<string, unknown>)
-                            .services as string[]
-                        )
-                          .slice(0, 5)
-                          .join(", ") || "—"}
-                      </div>
-                    )}
-                    {(p.scraped_data as Record<string, unknown>).aboutText && (
-                      <div>
-                        About:{" "}
-                        {String(
-                          (p.scraped_data as Record<string, unknown>).aboutText,
-                        ).slice(0, 200)}
-                        ...
-                      </div>
-                    )}
-                  </div>
+                  <ScrapedDataSummary data={p.scraped_data as Record<string, unknown>} />
                 ) : (
                   <div className="text-gray-400">Not yet scraped</div>
                 )}
@@ -703,5 +673,32 @@ function ProspectRow({
         </tr>
       )}
     </>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Scraped Data Summary
+// ---------------------------------------------------------------------------
+
+function ScrapedDataSummary({ data }: { data: Record<string, unknown> }) {
+  const providers = Array.isArray(data.providerNames)
+    ? (data.providerNames as string[]).join(", ")
+    : null;
+  const services = Array.isArray(data.services)
+    ? (data.services as string[]).slice(0, 5).join(", ")
+    : null;
+  const about = typeof data.aboutText === "string"
+    ? data.aboutText.slice(0, 200)
+    : null;
+
+  return (
+    <div className="space-y-1 text-gray-600">
+      {providers && <div>Providers: {providers}</div>}
+      {services && <div>Services: {services}</div>}
+      {about && <div>About: {about}...</div>}
+      {!providers && !services && !about && (
+        <div className="text-gray-400">No extractable data</div>
+      )}
+    </div>
   );
 }

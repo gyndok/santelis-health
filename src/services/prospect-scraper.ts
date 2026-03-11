@@ -1,13 +1,13 @@
-import FirecrawlApp from "@mendable/firecrawl-js";
+import Firecrawl from "@mendable/firecrawl-js";
 import type { ScrapedWebsiteData } from "@/types";
 
-let firecrawl: FirecrawlApp | null = null;
+let firecrawl: Firecrawl | null = null;
 
-function getFirecrawl(): FirecrawlApp {
+function getFirecrawl(): Firecrawl {
   if (!firecrawl) {
     const apiKey = process.env.FIRECRAWL_API_KEY;
     if (!apiKey) throw new Error("Missing FIRECRAWL_API_KEY");
-    firecrawl = new FirecrawlApp({ apiKey });
+    firecrawl = new Firecrawl({ apiKey });
   }
   return firecrawl;
 }
@@ -18,13 +18,9 @@ function getFirecrawl(): FirecrawlApp {
 export async function scrapeWebsite(url: string): Promise<ScrapedWebsiteData> {
   const fc = getFirecrawl();
 
-  const result = await fc.scrapeUrl(url, {
+  const result = await fc.scrape(url, {
     formats: ["markdown", "html"],
   });
-
-  if (!result.success) {
-    throw new Error(`Firecrawl scrape failed: ${result.error || "unknown error"}`);
-  }
 
   const markdown = result.markdown || "";
   const html = result.html || "";

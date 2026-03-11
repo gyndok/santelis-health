@@ -64,8 +64,8 @@ export async function discoverByLocation(params: {
       displayName: p.displayName?.text || "",
       formattedAddress: p.formattedAddress || "",
       nationalPhoneNumber: p.nationalPhoneNumber || "",
-      rating: p.rating ?? null,
-      userRatingCount: p.userRatingCount ?? null,
+      rating: p.rating ?? undefined,
+      userRatingCount: p.userRatingCount ?? undefined,
       websiteUri: p.websiteUri || null,
       location: p.location || null,
     }),
@@ -80,8 +80,8 @@ export async function discoverByLocation(params: {
       state,
       phone: p.nationalPhoneNumber || "",
       websiteUrl: p.websiteUri || null,
-      googleRating: p.rating,
-      googleReviewCount: p.userRatingCount,
+      googleRating: p.rating ?? null,
+      googleReviewCount: p.userRatingCount ?? null,
     };
   });
 }
