@@ -22,6 +22,7 @@ CREATE TABLE practices (
                       CHECK (plan IN ('starter', 'professional', 'practice', 'enterprise')),
   status            TEXT NOT NULL DEFAULT 'draft'
                       CHECK (status IN ('draft', 'preview', 'live')),
+  owner_email       TEXT,                       -- email of the practice owner (for dashboard access)
   stripe_customer_id TEXT,
   branding          JSONB DEFAULT '{}',         -- logo, colors, hero, tagline, font
   seo_config        JSONB DEFAULT '{}',         -- title, description, keywords, og, structured data

@@ -129,6 +129,7 @@ export async function POST(request: NextRequest) {
         seo_config: seoConfig,
         integrations: {},
         insurances_accepted: [],
+        owner_email: body.ownerEmail ?? null,
       })
       .select("id")
       .single();
