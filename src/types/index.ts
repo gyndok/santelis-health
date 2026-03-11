@@ -156,6 +156,7 @@ export interface PracticeConfig {
   status: "draft" | "preview" | "live";
   stripeCustomerId?: string;
   plan: "starter" | "professional" | "practice" | "enterprise";
+  ownerEmail?: string;
 }
 
 export interface SEOConfig {
