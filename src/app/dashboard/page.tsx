@@ -10,6 +10,7 @@ import {
   Palette,
   Star,
   Shield,
+  Calendar,
   Loader2,
   ExternalLink,
   LogOut,
@@ -29,7 +30,7 @@ interface PracticeData {
   reviews: Record<string, unknown>[];
 }
 
-type TabId = "practice" | "providers" | "services" | "location" | "branding" | "reviews" | "insurance";
+type TabId = "practice" | "providers" | "services" | "location" | "branding" | "reviews" | "insurance" | "requests";
 
 const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: "practice", label: "Practice Info", icon: <Building2 className="w-4 h-4" /> },
@@ -39,6 +40,7 @@ const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
   { id: "branding", label: "Branding", icon: <Palette className="w-4 h-4" /> },
   { id: "reviews", label: "Reviews", icon: <Star className="w-4 h-4" /> },
   { id: "insurance", label: "Insurance", icon: <Shield className="w-4 h-4" /> },
+  { id: "requests", label: "Requests", icon: <Calendar className="w-4 h-4" /> },
 ];
 
 // ---------------------------------------------------------------------------
@@ -224,6 +226,7 @@ function DashboardContent() {
             {activeTab === "insurance" && (
               <InsuranceTab insurances={(practice.insurances_accepted || []) as string[]} onSave={(body) => handleSave("practice", body)} saving={saving} />
             )}
+            {activeTab === "requests" && <RequestsTab practiceIdParam={practiceIdParam} />}
           </div>
         </div>
 
@@ -650,6 +653,96 @@ function InsuranceTab({
         )}
       </div>
       <SaveButton saving={saving} onClick={() => onSave({ insurances_accepted: insurances })} />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Requests Tab
+// ---------------------------------------------------------------------------
+
+function RequestsTab({ practiceIdParam }: { practiceIdParam: string | null }) {
+  const [appointments, setAppointments] = useState<Record<string, unknown>[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchAppointments() {
+      const params = practiceIdParam ? `?practiceId=${practiceIdParam}` : "";
+      const res = await window.fetch(`/api/dashboard/appointments${params}`);
+      if (res.ok) {
+        const data = await res.json();
+        setAppointments(data.appointments || []);
+      }
+      setLoading(false);
+    }
+    fetchAppointments();
+  }, [practiceIdParam]);
+
+  async function updateStatus(id: string, status: string) {
+    const params = practiceIdParam ? `?practiceId=${practiceIdParam}` : "";
+    await window.fetch(`/api/dashboard/appointments${params}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, status }),
+    });
+    setAppointments((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, status } : a))
+    );
+  }
+
+  const statusColors: Record<string, string> = {
+    new: "bg-blue-100 text-blue-800",
+    contacted: "bg-yellow-100 text-yellow-800",
+    scheduled: "bg-green-100 text-green-800",
+    dismissed: "bg-gray-100 text-gray-800",
+  };
+
+  if (loading) {
+    return <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-gray-400" /></div>;
+  }
+
+  if (appointments.length === 0) {
+    return <div className="text-center py-12 text-gray-500">No appointment requests yet.</div>;
+  }
+
+  return (
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold text-gray-900">Appointment Requests</h3>
+      <div className="space-y-3">
+        {appointments.map((apt) => (
+          <div key={apt.id as string} className="bg-white border border-gray-200 rounded-lg p-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="font-medium text-gray-900">{apt.patient_name as string}</div>
+                <div className="text-sm text-gray-500">{String(apt.email)}{apt.phone ? ` · ${String(apt.phone)}` : ""}</div>
+                {apt.preferred_date ? (
+                  <div className="text-sm text-gray-500 mt-1">
+                    Preferred: {String(apt.preferred_date)}{apt.preferred_time ? ` (${String(apt.preferred_time)})` : ""}
+                  </div>
+                ) : null}
+                {apt.reason ? (
+                  <div className="text-sm text-gray-600 mt-1">{String(apt.reason)}</div>
+                ) : null}
+                <div className="text-xs text-gray-400 mt-1">
+                  {new Date(apt.created_at as string).toLocaleDateString("en-US", {
+                    month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit",
+                  })}
+                </div>
+              </div>
+              <select
+                value={apt.status as string}
+                onChange={(e) => updateStatus(apt.id as string, e.target.value)}
+                className={`text-xs font-medium px-2.5 py-1 rounded-full border-0 cursor-pointer ${statusColors[(apt.status as string) || "new"]}`}
+              >
+                <option value="new">New</option>
+                <option value="contacted">Contacted</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="dismissed">Dismissed</option>
+              </select>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
