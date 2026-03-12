@@ -44,6 +44,7 @@ export default function GeneratedSite({ config }: GeneratedSiteProps) {
         colorPalette={branding.colorPalette}
         phone={primaryLocation.phone}
         bookingUrl={bookingUrl}
+        heroImageUrl={branding.heroImageUrl}
       />
 
       <SiteAbout
