@@ -5,6 +5,7 @@ import SiteAbout from "./SiteAbout";
 import SiteProviders from "./SiteProviders";
 import SiteServices from "./SiteServices";
 import SiteReviews from "./SiteReviews";
+import SiteAppointmentForm from "./SiteAppointmentForm";
 import SiteContact from "./SiteContact";
 import SiteFooter from "./SiteFooter";
 
@@ -69,6 +70,12 @@ export default function GeneratedSite({ config }: GeneratedSiteProps) {
         reviews={reviews}
         colorPalette={branding.colorPalette}
         googleBusinessProfileId={integrations.googleBusinessProfileId}
+      />
+
+      <SiteAppointmentForm
+        practiceId={config.id}
+        colorPalette={branding.colorPalette}
+        practiceName={config.practiceName}
       />
 
       <SiteContact

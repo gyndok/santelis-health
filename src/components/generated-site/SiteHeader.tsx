@@ -17,6 +17,7 @@ export default function SiteHeader({ practiceName, branding, bookingUrl }: SiteH
     { label: "About", href: "#about" },
     { label: "Services", href: "#services" },
     { label: "Reviews", href: "#reviews" },
+    { label: "Appointment", href: "#appointment" },
     { label: "Contact", href: "#contact" },
   ];
 
