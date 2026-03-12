@@ -214,3 +214,20 @@ export interface ScrapedWebsiteData {
   hasViewportMeta: boolean;
   rawMarkdown: string;
 }
+
+// ============================================================
+// Appointment Request Types
+// ============================================================
+
+export interface AppointmentRequest {
+  id: string;
+  practiceId: string;
+  patientName: string;
+  email: string;
+  phone?: string;
+  preferredDate?: string;
+  preferredTime?: string;
+  reason?: string;
+  status: "new" | "contacted" | "scheduled" | "dismissed";
+  createdAt: string;
+}
