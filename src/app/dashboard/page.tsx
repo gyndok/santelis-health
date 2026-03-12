@@ -504,6 +504,13 @@ function BrandingTab({
         <input type="text" value={(branding.tagline as string) || ""} onChange={(e) => setBranding({ ...branding, tagline: e.target.value })} className="mt-1 w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
       </label>
       <div>
+        <label className="block">
+          <span className="text-sm font-medium text-gray-700">Hero Image URL</span>
+          <input type="url" value={(branding.heroImageUrl as string) || ""} onChange={(e) => setBranding({ ...branding, heroImageUrl: e.target.value })} className="mt-1 w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://example.com/hero-image.jpg" />
+          <p className="text-xs text-gray-400 mt-1">Optional background image for the hero section</p>
+        </label>
+      </div>
+      <div>
         <span className="text-sm font-medium text-gray-700">Color Palette</span>
         <div className="grid grid-cols-2 gap-3 mt-2">
           {["primary", "primaryDark", "accent", "neutral", "neutralDark"].map((key) => (
