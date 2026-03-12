@@ -2,6 +2,7 @@ import type { PracticeConfig } from "@/types";
 import SiteHeader from "./SiteHeader";
 import SiteHero from "./SiteHero";
 import SiteAbout from "./SiteAbout";
+import SiteProviders from "./SiteProviders";
 import SiteServices from "./SiteServices";
 import SiteReviews from "./SiteReviews";
 import SiteContact from "./SiteContact";
@@ -50,6 +51,12 @@ export default function GeneratedSite({ config }: GeneratedSiteProps) {
       <SiteAbout
         provider={primaryProvider}
         colorPalette={branding.colorPalette}
+      />
+
+      <SiteProviders
+        providers={providers}
+        colorPalette={branding.colorPalette}
+        bookingUrl={bookingUrl}
       />
 
       <SiteServices
