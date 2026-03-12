@@ -288,3 +288,27 @@ CREATE POLICY "Authenticated users full access to prospects"
   ON prospects FOR ALL
   USING (auth.role() = 'authenticated')
   WITH CHECK (auth.role() = 'authenticated');
+
+-- ============================================================
+-- Appointment Requests
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS appointment_requests (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  practice_id UUID REFERENCES practices(id) NOT NULL,
+  patient_name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT,
+  preferred_date DATE,
+  preferred_time TEXT,
+  reason TEXT,
+  status TEXT DEFAULT 'new' CHECK (status IN ('new', 'contacted', 'scheduled', 'dismissed')),
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE appointment_requests ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Service role full access to appointment_requests"
+  ON appointment_requests FOR ALL
+  USING (true)
+  WITH CHECK (true);
