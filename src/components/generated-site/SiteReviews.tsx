@@ -1,4 +1,7 @@
-import type { Review, ColorPalette, Integrations } from "@/types";
+"use client";
+
+import { useState, useEffect, useCallback } from "react";
+import type { Review, ColorPalette } from "@/types";
 
 interface SiteReviewsProps {
   reviews: Review[];
@@ -33,6 +36,26 @@ export default function SiteReviews({
   const avgRating =
     reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
 
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const goTo = useCallback(
+    (index: number) => {
+      setCurrentIndex(((index % reviews.length) + reviews.length) % reviews.length);
+    },
+    [reviews.length]
+  );
+
+  const next = useCallback(() => goTo(currentIndex + 1), [goTo, currentIndex]);
+  const prev = useCallback(() => goTo(currentIndex - 1), [goTo, currentIndex]);
+
+  // Auto-rotate every 5 seconds
+  useEffect(() => {
+    if (isPaused || reviews.length <= 1) return;
+    const timer = setInterval(next, 5000);
+    return () => clearInterval(timer);
+  }, [isPaused, next, reviews.length]);
+
   return (
     <section id="reviews" className="py-20 md:py-24">
       <div className="container mx-auto px-4 max-w-5xl">
@@ -59,41 +82,95 @@ export default function SiteReviews({
           </p>
         </div>
 
-        {/* Review Cards */}
-        <div className="grid md:grid-cols-2 gap-6">
-          {reviews.map((review, i) => (
-            <div
-              key={i}
-              className="rounded-xl border border-gray-200 bg-white p-6"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <StarRating rating={review.rating} color={colorPalette.primary} />
-                <span className="text-xs text-gray-400">
-                  {new Date(review.date).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "short",
-                  })}
-                </span>
-              </div>
-              <p className="text-gray-700 text-sm leading-relaxed mb-3">
-                &ldquo;{review.text}&rdquo;
-              </p>
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold"
-                  style={{ backgroundColor: colorPalette.primary }}
-                >
-                  {review.authorName.charAt(0).toUpperCase()}
+        {/* Carousel */}
+        <div
+          className="relative max-w-2xl mx-auto"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
+          {/* Arrow buttons (desktop) */}
+          {reviews.length > 1 && (
+            <>
+              <button
+                onClick={prev}
+                className="hidden md:flex absolute -left-12 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400 hover:text-gray-700 hover:border-gray-400 transition-colors z-10"
+                aria-label="Previous review"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                onClick={next}
+                className="hidden md:flex absolute -right-12 top-1/2 -translate-y-1/2 w-10 h-10 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-400 hover:text-gray-700 hover:border-gray-400 transition-colors z-10"
+                aria-label="Next review"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </>
+          )}
+
+          {/* Review cards with fade transition */}
+          <div className="relative min-h-[200px]">
+            {reviews.map((review, i) => (
+              <div
+                key={i}
+                className="absolute inset-0 transition-opacity duration-500"
+                style={{ opacity: i === currentIndex ? 1 : 0, pointerEvents: i === currentIndex ? "auto" : "none" }}
+              >
+                <div className="rounded-xl border border-gray-200 bg-white p-8">
+                  <div className="flex items-center justify-between mb-4">
+                    <StarRating rating={review.rating} color={colorPalette.primary} />
+                    <span className="text-xs text-gray-400">
+                      {new Date(review.date).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                      })}
+                    </span>
+                  </div>
+                  <p className="text-gray-700 text-base leading-relaxed mb-4 italic">
+                    &ldquo;{review.text}&rdquo;
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                      style={{ backgroundColor: colorPalette.primary }}
+                    >
+                      {review.authorName.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-800">
+                        {review.authorName}
+                      </span>
+                      {review.source === "google" && (
+                        <span className="block text-xs text-gray-400">Google</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <span className="text-sm font-medium text-gray-800">
-                  {review.authorName}
-                </span>
-                {review.source === "google" && (
-                  <span className="text-xs text-gray-400 ml-auto">Google</span>
-                )}
               </div>
+            ))}
+          </div>
+
+          {/* Dot indicators */}
+          {reviews.length > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-6">
+              {reviews.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => goTo(i)}
+                  className="w-2.5 h-2.5 rounded-full transition-all duration-300"
+                  style={{
+                    backgroundColor: i === currentIndex ? colorPalette.primary : "#d1d5db",
+                    transform: i === currentIndex ? "scale(1.3)" : "scale(1)",
+                  }}
+                  aria-label={`Go to review ${i + 1}`}
+                />
+              ))}
             </div>
-          ))}
+          )}
         </div>
 
         {/* Google Reviews Link */}
