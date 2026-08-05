@@ -671,30 +671,55 @@ function InsuranceTab({
 function RequestsTab({ practiceIdParam }: { practiceIdParam: string | null }) {
   const [appointments, setAppointments] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function fetchAppointments() {
-      const params = practiceIdParam ? `?practiceId=${practiceIdParam}` : "";
-      const res = await window.fetch(`/api/dashboard/appointments${params}`);
-      if (res.ok) {
+      const params = practiceIdParam
+        ? `?practiceId=${encodeURIComponent(practiceIdParam)}`
+        : "";
+      try {
+        const res = await window.fetch(`/api/dashboard/appointments${params}`);
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error || `Request failed (${res.status})`);
+        }
         const data = await res.json();
         setAppointments(data.appointments || []);
+        setError("");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load requests");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     fetchAppointments();
   }, [practiceIdParam]);
 
   async function updateStatus(id: string, status: string) {
-    const params = practiceIdParam ? `?practiceId=${practiceIdParam}` : "";
-    await window.fetch(`/api/dashboard/appointments${params}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, status }),
-    });
+    const params = practiceIdParam
+      ? `?practiceId=${encodeURIComponent(practiceIdParam)}`
+      : "";
+    const previous = appointments;
+    // Optimistic update, reverted if the server rejects the change
     setAppointments((prev) =>
       prev.map((a) => (a.id === id ? { ...a, status } : a))
     );
+    try {
+      const res = await window.fetch(`/api/dashboard/appointments${params}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `Update failed (${res.status})`);
+      }
+      setError("");
+    } catch (err) {
+      setAppointments(previous);
+      setError(err instanceof Error ? err.message : "Failed to update status");
+    }
   }
 
   const statusColors: Record<string, string> = {
@@ -708,6 +733,14 @@ function RequestsTab({ practiceIdParam }: { practiceIdParam: string | null }) {
     return <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-gray-400" /></div>;
   }
 
+  if (error && appointments.length === 0) {
+    return (
+      <div className="text-center py-12 text-red-600" role="alert">
+        Could not load appointment requests: {error}
+      </div>
+    );
+  }
+
   if (appointments.length === 0) {
     return <div className="text-center py-12 text-gray-500">No appointment requests yet.</div>;
   }
@@ -715,6 +748,11 @@ function RequestsTab({ practiceIdParam }: { practiceIdParam: string | null }) {
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold text-gray-900">Appointment Requests</h3>
+      {error && (
+        <p className="text-sm text-red-600 bg-red-50 rounded-lg p-3" role="alert">
+          {error}
+        </p>
+      )}
       <div className="space-y-3">
         {appointments.map((apt) => (
           <div key={apt.id as string} className="bg-white border border-gray-200 rounded-lg p-4">
