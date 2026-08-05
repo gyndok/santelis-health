@@ -1,40 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { requireAdmin } from "@/lib/admin-auth";
 
 export async function GET(request: NextRequest) {
   try {
-    const supabaseAuth = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          getAll() {
-            return request.cookies.getAll();
-          },
-          setAll() {},
-        },
-      },
-    );
-
-    const { data: { user } } = await supabaseAuth.auth.getUser();
-
-    if (!user?.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const adminEmails = (process.env.ADMIN_EMAILS || "")
-      .split(",")
-      .map((e) => e.trim().toLowerCase());
-
-    if (!adminEmails.includes(user.email.toLowerCase())) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    await requireAdmin(request);
 
     const supabase = getSupabaseAdmin();
     const { data, error } = await supabase
       .from("practices")
-      .select("id, practice_name, subdomain, specialty, status, plan, owner_email, created_at")
+      .select("id, practice_name:name, subdomain, specialty, status, plan, owner_email, created_at")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -44,6 +19,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ practices: data });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
+    if (message === "Unauthorized") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
