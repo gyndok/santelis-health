@@ -92,24 +92,11 @@ function LoginForm() {
       });
 
       if (error) {
-        if (error.message.includes("Invalid login")) {
-          // Try signing up
-          const { error: signUpError } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-              emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
-            },
-          });
-          if (signUpError) {
-            setError(signUpError.message);
-          } else {
-            setMagicLinkSent(true);
-            setError("");
-          }
-        } else {
-          setError(error.message);
-        }
+        setError(
+          error.message.toLowerCase().includes("invalid login")
+            ? "Invalid email or password. If you haven't set a password yet, sign in with a magic link instead."
+            : error.message,
+        );
       } else {
         window.location.href = "/dashboard";
       }
