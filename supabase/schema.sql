@@ -198,96 +198,15 @@ ALTER TABLE prospects  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
 
 -- ---------------------------------------------------------
--- practices: authenticated users can read all, but only
--- modify rows they own (via a future user-practice mapping).
--- For now, authenticated users have full access.
--- The service_role key bypasses RLS entirely.
+-- Default-deny: no anon/authenticated policies.
+--
+-- All application data access flows through server-side API
+-- routes using the service role key (bypasses RLS). Client-side
+-- Supabase is used for auth only. If client-side table access is
+-- ever added, write narrowly-scoped policies here (owner-scoped
+-- via owner_email, admin-scoped via a custom claim) — never
+-- role-wide USING (true) grants.
 -- ---------------------------------------------------------
-
--- Public read for live practices (used by the rendered sites)
-CREATE POLICY "Public can read live practices"
-  ON practices FOR SELECT
-  USING (status = 'live');
-
--- Authenticated users can do everything (admin dashboard)
-CREATE POLICY "Authenticated users full access to practices"
-  ON practices FOR ALL
-  USING (auth.role() = 'authenticated')
-  WITH CHECK (auth.role() = 'authenticated');
-
--- ---------------------------------------------------------
--- Child tables: public read when parent practice is live,
--- authenticated users get full access.
--- ---------------------------------------------------------
-
--- providers
-CREATE POLICY "Public can read providers of live practices"
-  ON providers FOR SELECT
-  USING (EXISTS (
-    SELECT 1 FROM practices WHERE practices.id = providers.practice_id AND practices.status = 'live'
-  ));
-
-CREATE POLICY "Authenticated users full access to providers"
-  ON providers FOR ALL
-  USING (auth.role() = 'authenticated')
-  WITH CHECK (auth.role() = 'authenticated');
-
--- services
-CREATE POLICY "Public can read services of live practices"
-  ON services FOR SELECT
-  USING (EXISTS (
-    SELECT 1 FROM practices WHERE practices.id = services.practice_id AND practices.status = 'live'
-  ));
-
-CREATE POLICY "Authenticated users full access to services"
-  ON services FOR ALL
-  USING (auth.role() = 'authenticated')
-  WITH CHECK (auth.role() = 'authenticated');
-
--- locations
-CREATE POLICY "Public can read locations of live practices"
-  ON locations FOR SELECT
-  USING (EXISTS (
-    SELECT 1 FROM practices WHERE practices.id = locations.practice_id AND practices.status = 'live'
-  ));
-
-CREATE POLICY "Authenticated users full access to locations"
-  ON locations FOR ALL
-  USING (auth.role() = 'authenticated')
-  WITH CHECK (auth.role() = 'authenticated');
-
--- reviews
-CREATE POLICY "Public can read reviews of live practices"
-  ON reviews FOR SELECT
-  USING (EXISTS (
-    SELECT 1 FROM practices WHERE practices.id = reviews.practice_id AND practices.status = 'live'
-  ));
-
-CREATE POLICY "Authenticated users full access to reviews"
-  ON reviews FOR ALL
-  USING (auth.role() = 'authenticated')
-  WITH CHECK (auth.role() = 'authenticated');
-
--- blog_posts
-CREATE POLICY "Public can read published posts of live practices"
-  ON blog_posts FOR SELECT
-  USING (
-    status = 'published'
-    AND EXISTS (
-      SELECT 1 FROM practices WHERE practices.id = blog_posts.practice_id AND practices.status = 'live'
-    )
-  );
-
-CREATE POLICY "Authenticated users full access to blog_posts"
-  ON blog_posts FOR ALL
-  USING (auth.role() = 'authenticated')
-  WITH CHECK (auth.role() = 'authenticated');
-
--- prospects (admin-only, no public access)
-CREATE POLICY "Authenticated users full access to prospects"
-  ON prospects FOR ALL
-  USING (auth.role() = 'authenticated')
-  WITH CHECK (auth.role() = 'authenticated');
 
 -- ============================================================
 -- Appointment Requests
@@ -295,7 +214,7 @@ CREATE POLICY "Authenticated users full access to prospects"
 
 CREATE TABLE IF NOT EXISTS appointment_requests (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  practice_id UUID REFERENCES practices(id) NOT NULL,
+  practice_id UUID REFERENCES practices(id) ON DELETE CASCADE NOT NULL,
   patient_name TEXT NOT NULL,
   email TEXT NOT NULL,
   phone TEXT,
@@ -307,8 +226,3 @@ CREATE TABLE IF NOT EXISTS appointment_requests (
 );
 
 ALTER TABLE appointment_requests ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Service role full access to appointment_requests"
-  ON appointment_requests FOR ALL
-  USING (true)
-  WITH CHECK (true);
