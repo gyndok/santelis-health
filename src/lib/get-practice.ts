@@ -38,10 +38,15 @@ export async function getPracticeBySlug(
 
   try {
     // 1. Fetch the practice row by subdomain
+    // Explicit columns: never expose stripe_customer_id / owner_email to
+    // page rendering. Drafts are not publicly viewable; demos use 'preview'.
     const { data: practice, error: practiceError } = await supabase
       .from("practices")
-      .select("*")
+      .select(
+        "id, name, specialty, sub_specialties, subdomain, domain, plan, status, branding, seo_config, integrations, insurances_accepted, created_at, updated_at",
+      )
       .eq("subdomain", slug)
+      .in("status", ["preview", "live"])
       .single();
 
     if (practiceError || !practice) return null;
@@ -86,14 +91,27 @@ export async function getPracticeBySlug(
       languages: p.languages ?? [],
     }));
 
-    const services: Service[] = (servicesRes.data ?? []).map((s) => ({
-      id: s.id,
-      title: s.title,
-      description: s.description,
-      icon: s.icon ?? undefined,
-      featured: s.featured,
-      linkUrl: s.link_url ?? undefined,
-    }));
+    const lucideIconNames = new Set([
+      "Baby", "Scissors", "Heart", "Users", "Scale", "Microscope",
+      "Stethoscope", "Brain", "Eye", "Syringe", "Pill", "Activity",
+      "Shield", "Bone", "Ear", "Smile", "HeartPulse", "Monitor",
+      "Thermometer",
+    ]);
+
+    const services: Service[] = (servicesRes.data ?? []).map((s) => {
+      const iconValue = s.icon ?? undefined;
+      // If the icon value looks like a Lucide icon name, use iconName instead
+      const isLucideName = iconValue && lucideIconNames.has(iconValue);
+      return {
+        id: s.id,
+        title: s.title,
+        description: s.description,
+        icon: isLucideName ? undefined : iconValue,
+        iconName: isLucideName ? iconValue : undefined,
+        featured: s.featured,
+        linkUrl: s.link_url ?? undefined,
+      };
+    });
 
     const locations: OfficeLocation[] = (locationsRes.data ?? []).map((l) => ({
       name: l.name ?? undefined,
@@ -147,13 +165,13 @@ export async function getPracticeBySlug(
       createdAt: practice.created_at,
       updatedAt: practice.updated_at,
       status: practice.status as PracticeConfig["status"],
-      stripeCustomerId: practice.stripe_customer_id ?? undefined,
       plan: practice.plan as PracticeConfig["plan"],
     };
 
     return config;
-  } catch {
-    // Any unexpected error — caller will fall back to mock data
+  } catch (err) {
+    // Caller falls back to mock data, but the failure must not be invisible
+    console.error(`getPracticeBySlug(${slug}) failed:`, err);
     return null;
   }
 }
