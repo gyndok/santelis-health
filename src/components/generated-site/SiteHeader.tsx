@@ -67,7 +67,9 @@ export default function SiteHeader({ practiceName, branding, bookingUrl }: SiteH
         <button
           className="md:hidden p-2"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle menu"
+          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileMenuOpen}
+          aria-controls="site-mobile-menu"
         >
           <svg
             className="w-6 h-6"
@@ -87,7 +89,7 @@ export default function SiteHeader({ practiceName, branding, bookingUrl }: SiteH
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t bg-white" style={{ borderColor: branding.colorPalette.accent }}>
+        <div id="site-mobile-menu" className="md:hidden border-t bg-white" style={{ borderColor: branding.colorPalette.accent }}>
           <div className="container mx-auto px-4 py-4 flex flex-col gap-4">
             {navLinks.map((link) => (
               <a

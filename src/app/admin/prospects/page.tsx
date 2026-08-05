@@ -79,6 +79,7 @@ export default function AdminProspectsPage() {
   const [prospects, setProspects] = useState<Prospect[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [listError, setListError] = useState<string | null>(null);
 
   // Filters
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -115,33 +116,43 @@ export default function AdminProspectsPage() {
 
       const res = await fetch(`/api/prospects?${params.toString()}`);
       const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || `Request failed (${res.status})`);
+      }
       setProspects(data.prospects || []);
       setTotal(data.total || 0);
+      setListError(null);
     } catch (err) {
       console.error("Failed to fetch prospects:", err);
+      setListError(err instanceof Error ? err.message : "Failed to load prospects");
     } finally {
       setLoading(false);
     }
   }, [statusFilter]);
 
   const fetchStatusCounts = useCallback(async () => {
-    const statuses = ["no-website", "discovered", "qualified", "demo-generated"];
-    const counts: Record<string, number> = {};
+    try {
+      const statuses = ["no-website", "discovered", "qualified", "demo-generated"];
+      const counts: Record<string, number> = {};
 
-    // Fetch all to get total
-    const allRes = await fetch("/api/prospects?limit=1");
-    const allData = await allRes.json();
-    counts.all = allData.total || 0;
+      // Fetch all to get total
+      const allRes = await fetch("/api/prospects?limit=1");
+      const allData = await allRes.json();
+      counts.all = allData.total || 0;
 
-    await Promise.all(
-      statuses.map(async (status) => {
-        const res = await fetch(`/api/prospects?status=${status}&limit=1`);
-        const data = await res.json();
-        counts[status] = data.total || 0;
-      }),
-    );
+      await Promise.all(
+        statuses.map(async (status) => {
+          const res = await fetch(`/api/prospects?status=${status}&limit=1`);
+          const data = await res.json();
+          counts[status] = data.total || 0;
+        }),
+      );
 
-    setStatusCounts(counts);
+      setStatusCounts(counts);
+    } catch (err) {
+      // Counts are decorative; log but don't block the page
+      console.error("Failed to fetch status counts:", err);
+    }
   }, []);
 
   useEffect(() => {
@@ -447,6 +458,10 @@ export default function AdminProspectsPage() {
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
             </div>
+          ) : listError ? (
+            <div role="alert" className="text-center py-12 text-red-600">
+              Could not load prospects: {listError}
+            </div>
           ) : prospects.length === 0 ? (
             <div className="text-center py-12 text-gray-400">
               No prospects found. Use the search forms above to discover doctors.
@@ -522,10 +537,21 @@ function ProspectRow({
         onClick={onToggleExpand}
       >
         <td className="px-5 py-3">
-          <div className="font-medium text-gray-900">{p.practice_name}</div>
-          {p.provider_name && (
-            <div className="text-xs text-gray-500">{p.provider_name}</div>
-          )}
+          {/* Real button so row expansion is keyboard-accessible */}
+          <button
+            type="button"
+            aria-expanded={expanded}
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleExpand();
+            }}
+            className="text-left w-full"
+          >
+            <div className="font-medium text-gray-900">{p.practice_name}</div>
+            {p.provider_name && (
+              <div className="text-xs text-gray-500">{p.provider_name}</div>
+            )}
+          </button>
         </td>
         <td className="px-3 py-3 text-gray-600">
           {[p.city, p.state].filter(Boolean).join(", ")}

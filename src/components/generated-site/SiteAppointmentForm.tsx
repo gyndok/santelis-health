@@ -111,11 +111,12 @@ export default function SiteAppointmentForm({
           >
             {/* Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="appt-patientName" className="block text-sm font-medium text-gray-700 mb-1">
                 Full Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
+                id="appt-patientName"
                 name="patientName"
                 required
                 value={formData.patientName}
@@ -129,12 +130,13 @@ export default function SiteAppointmentForm({
             {/* Email & Phone row */}
             <div className="grid md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="appt-email" className="block text-sm font-medium text-gray-700 mb-1">
                   Email <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="email"
-                  name="email"
+                  id="appt-email"
+                name="email"
                   required
                   value={formData.email}
                   onChange={handleChange}
@@ -144,12 +146,13 @@ export default function SiteAppointmentForm({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="appt-phone" className="block text-sm font-medium text-gray-700 mb-1">
                   Phone
                 </label>
                 <input
                   type="tel"
-                  name="phone"
+                  id="appt-phone"
+                name="phone"
                   value={formData.phone}
                   onChange={handleChange}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent outline-none"
@@ -162,12 +165,13 @@ export default function SiteAppointmentForm({
             {/* Date & Time row */}
             <div className="grid md:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="appt-preferredDate" className="block text-sm font-medium text-gray-700 mb-1">
                   Preferred Date
                 </label>
                 <input
                   type="date"
-                  name="preferredDate"
+                  id="appt-preferredDate"
+                name="preferredDate"
                   value={formData.preferredDate}
                   onChange={handleChange}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent outline-none"
@@ -175,11 +179,12 @@ export default function SiteAppointmentForm({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="appt-preferredTime" className="block text-sm font-medium text-gray-700 mb-1">
                   Preferred Time
                 </label>
                 <select
-                  name="preferredTime"
+                  id="appt-preferredTime"
+                name="preferredTime"
                   value={formData.preferredTime}
                   onChange={handleChange}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:border-transparent outline-none bg-white"
@@ -195,10 +200,11 @@ export default function SiteAppointmentForm({
 
             {/* Reason */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="appt-reason" className="block text-sm font-medium text-gray-700 mb-1">
                 Reason for Visit
               </label>
               <textarea
+                id="appt-reason"
                 name="reason"
                 value={formData.reason}
                 onChange={handleChange}
@@ -210,7 +216,7 @@ export default function SiteAppointmentForm({
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-sm p-3 rounded-lg">
+              <div role="alert" className="bg-red-50 border border-red-200 text-red-700 text-sm p-3 rounded-lg">
                 {error}
               </div>
             )}

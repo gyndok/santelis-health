@@ -160,7 +160,7 @@ function DashboardContent() {
         </div>
         <div className="flex items-center gap-3">
           {saveSuccess && (
-            <span className="text-green-600 text-sm flex items-center gap-1">
+            <span role="status" className="text-green-600 text-sm flex items-center gap-1">
               <Check className="w-4 h-4" /> Saved
             </span>
           )}
