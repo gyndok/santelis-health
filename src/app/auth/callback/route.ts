@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { safeRedirectPath } from "@/lib/safe-redirect";
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/admin/prospects";
+  const next = safeRedirectPath(searchParams.get("next"), "/admin/prospects");
+  const errorLogin = next.startsWith("/dashboard") ? "/dashboard/login" : "/admin/login";
 
   if (code) {
     const response = NextResponse.redirect(`${origin}${next}`);
@@ -32,6 +34,6 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // If no code or error, redirect to login
-  return NextResponse.redirect(`${origin}/admin/login?error=auth_failed`);
+  // If no code or error, redirect to the login page the user came from
+  return NextResponse.redirect(`${origin}${errorLogin}?error=auth_failed`);
 }
