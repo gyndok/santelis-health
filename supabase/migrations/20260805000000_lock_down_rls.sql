@@ -33,6 +33,9 @@ DROP POLICY IF EXISTS "Public can read published posts of live practices" ON blo
 -- The service role needs no policy; it bypasses RLS.
 DROP POLICY IF EXISTS "Service role full access to appointment_requests" ON appointment_requests;
 
+-- The live table was created with RLS disabled — enable it (idempotent).
+ALTER TABLE appointment_requests ENABLE ROW LEVEL SECURITY;
+
 -- Align with every other child table: cascade on practice deletion.
 ALTER TABLE appointment_requests
   DROP CONSTRAINT IF EXISTS appointment_requests_practice_id_fkey;
