@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Check, Zap, Search, Shield, Globe, ArrowRight, Star } from "lucide-react";
+import LandingNav from "@/components/LandingNav";
+import { specialtyConfigs } from "@/config/specialties";
 
 const plans = [
   {
@@ -85,47 +87,13 @@ const features = [
   },
 ];
 
-const specialties = [
-  "OBGYN",
-  "Family Medicine",
-  "Dermatology",
-  "Orthopedics",
-  "Pediatrics",
-  "Internal Medicine",
-  "Medical Spa",
-  "Cardiology",
-  "Urology",
-  "ENT",
-];
+const specialties = Object.values(specialtyConfigs).map((c) => c.label);
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-white">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200">
-        <nav className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold text-slate-800">
-            Santelis<span className="text-teal-600">Health</span>
-          </Link>
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-sm text-gray-600 hover:text-gray-900">
-              Features
-            </a>
-            <a href="#specialties" className="text-sm text-gray-600 hover:text-gray-900">
-              Specialties
-            </a>
-            <a href="#pricing" className="text-sm text-gray-600 hover:text-gray-900">
-              Pricing
-            </a>
-            <Link
-              href="/onboard"
-              className="bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
-            >
-              Get Started
-            </Link>
-          </div>
-        </nav>
-      </header>
+      <LandingNav />
 
       {/* Hero */}
       <section className="py-24 md:py-32">
@@ -180,7 +148,7 @@ export default function Home() {
               <p className="text-sm text-gray-600">Setup Fee</p>
             </div>
             <div>
-              <p className="text-3xl font-bold text-slate-800">10</p>
+              <p className="text-3xl font-bold text-slate-800">{Object.keys(specialtyConfigs).length}</p>
               <p className="text-sm text-gray-600">Specialties Supported</p>
             </div>
           </div>
