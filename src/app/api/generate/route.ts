@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { requireAdmin } from "@/lib/admin-auth";
 import type { PracticeConfig, Service } from "@/types";
 
 // ---------------------------------------------------------------------------
@@ -79,6 +80,7 @@ function buildSeoConfig(
 
 export async function POST(request: NextRequest) {
   try {
+    await requireAdmin(request);
     const supabase = getSupabaseAdmin();
     const body = (await request.json()) as Partial<PracticeConfig>;
 
@@ -226,6 +228,9 @@ export async function POST(request: NextRequest) {
     // -----------------------------------------------------------------------
     return NextResponse.json({ slug: subdomain }, { status: 201 });
   } catch (err) {
+    if (err instanceof Error && err.message === "Unauthorized") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     console.error("Unhandled error in /api/generate:", err);
     return NextResponse.json(
       { error: "An unexpected error occurred." },

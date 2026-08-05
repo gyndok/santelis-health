@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { specialtyConfigs } from "@/config/specialties";
+import { requireAdmin } from "@/lib/admin-auth";
 import type { Specialty } from "@/types";
 
 interface RouteParams {
@@ -9,6 +10,7 @@ interface RouteParams {
 
 export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
+    await requireAdmin(request);
     const { id } = await params;
     const supabase = getSupabaseAdmin();
 
@@ -82,7 +84,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       new URL("/api/generate", request.url).toString(),
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          // /api/generate now requires admin auth; forward the caller's session
+          cookie: request.headers.get("cookie") ?? "",
+        },
         body: JSON.stringify(practiceConfig),
       },
     );
@@ -105,6 +111,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ slug, demoUrl: `/demo/${slug}` });
   } catch (err) {
+    if (err instanceof Error && err.message === "Unauthorized") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     console.error("Generate demo error:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Demo generation failed" },
