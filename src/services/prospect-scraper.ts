@@ -1,5 +1,6 @@
 import Firecrawl from "@mendable/firecrawl-js";
 import type { ScrapedWebsiteData } from "@/types";
+import { pickContactEmail } from "./prospect-utils";
 
 let firecrawl: Firecrawl | null = null;
 
@@ -30,7 +31,7 @@ export async function scrapeWebsite(url: string): Promise<ScrapedWebsiteData> {
     providerNames: extractProviderNames(markdown),
     services: extractServices(markdown),
     aboutText: extractAboutText(markdown),
-    contactInfo: extractContactInfo(markdown),
+    contactInfo: extractContactInfo(markdown, html, url),
     officeHours: extractOfficeHours(markdown),
     metaTags: {
       title: metadata.title || undefined,
@@ -39,7 +40,7 @@ export async function scrapeWebsite(url: string): Promise<ScrapedWebsiteData> {
     },
     hasSSL: url.startsWith("https://"),
     hasStructuredData: html.includes("schema.org") || html.includes("application/ld+json"),
-    hasViewportMeta: html.includes("viewport"),
+    hasViewportMeta: !!extractViewportMeta(html),
     rawMarkdown: markdown.slice(0, 10000), // cap storage size
   };
 }
@@ -95,14 +96,17 @@ function extractAboutText(markdown: string): string {
   return paragraphs[0]?.slice(0, 500) || "";
 }
 
-function extractContactInfo(markdown: string): ScrapedWebsiteData["contactInfo"] {
+function extractContactInfo(
+  markdown: string,
+  html: string,
+  siteUrl: string,
+): ScrapedWebsiteData["contactInfo"] {
   const phoneMatch = markdown.match(/\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
-  const emailMatch = markdown.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
   const faxMatch = markdown.match(/[Ff]ax[:\s]*\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
 
   return {
     phone: phoneMatch?.[0],
-    email: emailMatch?.[0],
+    email: pickContactEmail(markdown, html, siteUrl),
     fax: faxMatch?.[0]?.replace(/[Ff]ax[:\s]*/, ""),
   };
 }

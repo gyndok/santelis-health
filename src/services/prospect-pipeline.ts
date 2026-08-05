@@ -1,6 +1,7 @@
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { discoverByLocation } from "./prospect-discovery";
 import { scrapeWebsite } from "./prospect-scraper";
+import { normalizeUrl } from "./prospect-utils";
 import {
   getPageSpeedScore,
   calculateQualificationScore,
@@ -38,22 +39,34 @@ export async function discoverProspects(
   }> = [];
 
   for (const result of results) {
-    // Check for duplicates by website URL or practice name + city
-    let duplicateQuery = supabase.from("prospects").select("id");
+    // Check for duplicates by website URL, then practice name + city.
+    // Two .eq() queries instead of one .or(): interpolating practice names
+    // into a PostgREST filter string breaks on commas/parens ("Smith,
+    // Jones & Associates") and silently disabled dedup.
+    let isDuplicate = false;
 
     if (result.websiteUrl) {
-      duplicateQuery = duplicateQuery.or(
-        `website_url.eq.${result.websiteUrl},and(practice_name.eq.${result.practiceName},city.eq.${result.city})`,
-      );
-    } else {
-      duplicateQuery = duplicateQuery
-        .eq("practice_name", result.practiceName)
-        .eq("city", result.city);
+      const { data: byUrl, error: urlError } = await supabase
+        .from("prospects")
+        .select("id")
+        .eq("website_url", result.websiteUrl)
+        .limit(1);
+      if (urlError) console.error("Dedup lookup (url) failed:", urlError);
+      isDuplicate = !!byUrl?.length;
     }
 
-    const { data: existing } = await duplicateQuery.limit(1);
+    if (!isDuplicate) {
+      const { data: byName, error: nameError } = await supabase
+        .from("prospects")
+        .select("id")
+        .eq("practice_name", result.practiceName)
+        .eq("city", result.city)
+        .limit(1);
+      if (nameError) console.error("Dedup lookup (name) failed:", nameError);
+      isDuplicate = !!byName?.length;
+    }
 
-    if (existing && existing.length > 0) {
+    if (isDuplicate) {
       skippedCount++;
       continue;
     }
@@ -169,7 +182,13 @@ export async function scrapeAndScoreProspect(prospectId: string): Promise<{
     updateData.email = scrapedData.contactInfo.email;
   }
 
-  await supabase.from("prospects").update(updateData).eq("id", prospectId);
+  const { error: updateError } = await supabase
+    .from("prospects")
+    .update(updateData)
+    .eq("id", prospectId);
+  if (updateError) {
+    throw new Error(`Failed to save prospect scores: ${updateError.message}`);
+  }
 
   return { qualificationScore, outreachStatus, pageSpeed };
 }
@@ -183,11 +202,12 @@ export async function scrapeUrl(params: {
   specialty?: string;
 }): Promise<{ id: string; qualificationScore: number; outreachStatus: string }> {
   const supabase = getSupabaseAdmin();
+  const url = normalizeUrl(params.url); // throws a clear error on bad input
 
   const { data: existing } = await supabase
     .from("prospects")
     .select("id")
-    .eq("website_url", params.url)
+    .eq("website_url", url)
     .limit(1);
 
   if (existing && existing.length > 0) {
@@ -197,10 +217,10 @@ export async function scrapeUrl(params: {
   const { data: prospect, error } = await supabase
     .from("prospects")
     .insert({
-      practice_name: new URL(params.url).hostname.replace("www.", ""),
+      practice_name: new URL(url).hostname.replace("www.", ""),
       provider_name: "",
       specialty: params.specialty || "unknown",
-      website_url: params.url,
+      website_url: url,
       outreach_status: "discovered",
     })
     .select("id")

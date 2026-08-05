@@ -6,22 +6,30 @@ interface PageSpeedResult {
 
 /**
  * Fetch Google PageSpeed Insights score for a URL.
- * No API key needed for low volume.
+ * Unkeyed access is heavily rate-limited; set PAGESPEED_API_KEY for volume.
  */
 export async function getPageSpeedScore(url: string): Promise<PageSpeedResult> {
-  const apiUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&category=performance&strategy=mobile`;
+  const key = process.env.PAGESPEED_API_KEY;
+  const apiUrl =
+    `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&category=performance&strategy=mobile` +
+    (key ? `&key=${key}` : "");
 
-  const response = await fetch(apiUrl);
+  // PSI regularly takes 30-60s; without a timeout a hung call stalls the
+  // whole scrape-and-score request.
+  const response = await fetch(apiUrl, { signal: AbortSignal.timeout(60_000) });
   if (!response.ok) {
     throw new Error(`PageSpeed API error: ${response.status}`);
   }
 
   const data = await response.json();
-  const score = Math.round(
-    (data.lighthouseResult?.categories?.performance?.score ?? 0) * 100,
-  );
+  const raw = data.lighthouseResult?.categories?.performance?.score;
+  if (typeof raw !== "number") {
+    // A missing score must not read as "0 = terrible site" — that awards
+    // qualification points for what is actually a failed measurement.
+    throw new Error("PageSpeed response missing performance score");
+  }
 
-  return { performanceScore: score };
+  return { performanceScore: Math.round(raw * 100) };
 }
 
 /**
