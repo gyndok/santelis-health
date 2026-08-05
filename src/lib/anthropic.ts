@@ -1,8 +1,33 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY!,
-});
+let _client: Anthropic | null = null;
+
+/**
+ * Lazily initialized Anthropic client (mirrors supabase-admin.ts) so that
+ * importing this module never crashes a build/boot when the key is unset.
+ */
+function getAnthropic(): Anthropic {
+  if (!_client) {
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      throw new Error("Missing ANTHROPIC_API_KEY environment variable.");
+    }
+    _client = new Anthropic({ apiKey });
+  }
+  return _client;
+}
+
+/** Extract the text block from a response, throwing on refusals/empty output. */
+function textOf(response: Anthropic.Message): string {
+  if (response.stop_reason === "refusal") {
+    throw new Error("Model declined to generate content for this request.");
+  }
+  const block = response.content.find((b) => b.type === "text");
+  if (!block || !block.text.trim()) {
+    throw new Error("Model returned no text content.");
+  }
+  return block.text;
+}
 
 /** Generate a professional bio from provider credentials */
 export async function generateBio(provider: {
@@ -13,9 +38,9 @@ export async function generateBio(provider: {
   boardCertifications: { board: string; specialty: string }[];
   specialty: string;
 }): Promise<string> {
-  const response = await anthropic.messages.create({
+  const response = await getAnthropic().messages.create({
     model: "claude-sonnet-4-6",
-    max_tokens: 500,
+    max_tokens: 1000,
     messages: [
       {
         role: "user",
@@ -31,8 +56,7 @@ Keep it professional but approachable. No bullet points. Include all credentials
     ],
   });
 
-  const block = response.content[0];
-  return block.type === "text" ? block.text : "";
+  return textOf(response);
 }
 
 /** Generate SEO-optimized meta description for a page */
@@ -43,9 +67,9 @@ export async function generateMetaDescription(input: {
   state: string;
   pageName: string;
 }): Promise<string> {
-  const response = await anthropic.messages.create({
+  const response = await getAnthropic().messages.create({
     model: "claude-haiku-4-5-20251001",
-    max_tokens: 200,
+    max_tokens: 300,
     messages: [
       {
         role: "user",
@@ -55,14 +79,24 @@ Practice: ${input.practiceName}
 Specialty: ${input.specialty}
 Location: ${input.city}, ${input.state}
 
-Include the location and specialty. Make it compelling for patients searching Google.`,
+Include the location and specialty. Make it compelling for patients searching Google. Respond with the meta description only — no preamble.`,
       },
     ],
   });
 
-  const block = response.content[0];
-  return block.type === "text" ? block.text : "";
+  return textOf(response);
 }
+
+const BLOG_POST_SCHEMA = {
+  type: "object",
+  properties: {
+    title: { type: "string" },
+    content: { type: "string", description: "The blog post body in markdown" },
+    metaDescription: { type: "string", description: "SEO meta description, max 155 chars" },
+  },
+  required: ["title", "content", "metaDescription"],
+  additionalProperties: false,
+} as const;
 
 /** Generate a blog post on a health topic */
 export async function generateBlogPost(input: {
@@ -71,9 +105,14 @@ export async function generateBlogPost(input: {
   providerName: string;
   targetKeywords: string[];
 }): Promise<{ title: string; content: string; metaDescription: string }> {
-  const response = await anthropic.messages.create({
+  // Structured output guarantees schema-valid JSON — no fence-stripping or
+  // parse retries needed.
+  const response = await getAnthropic().messages.create({
     model: "claude-opus-4-6",
-    max_tokens: 2000,
+    max_tokens: 4000,
+    output_config: {
+      format: { type: "json_schema", schema: BLOG_POST_SCHEMA },
+    },
     messages: [
       {
         role: "user",
@@ -87,20 +126,16 @@ Requirements:
 - 500-800 words
 - Written at an 8th grade reading level
 - Include the SEO keywords naturally (don't stuff)
-- Use H2 and H3 subheadings
+- Use H2 and H3 subheadings in the markdown content
 - End with a brief call-to-action to schedule an appointment
-- Do NOT include medical disclaimers (we add those automatically)
-
-Return as JSON: { "title": "...", "content": "...(markdown)...", "metaDescription": "...(max 155 chars)..." }`,
+- Do NOT include medical disclaimers (we add those automatically)`,
       },
     ],
   });
 
-  const block = response.content[0];
-  if (block.type === "text") {
-    return JSON.parse(block.text);
+  if (response.stop_reason === "max_tokens") {
+    throw new Error("Blog post generation was truncated; increase max_tokens.");
   }
-  throw new Error("Unexpected response format");
-}
 
-export default anthropic;
+  return JSON.parse(textOf(response));
+}
