@@ -211,8 +211,23 @@ export default function OnboardingWizard() {
 
   // ---- navigation ----
 
+  /** Returns a user-facing message when the current step is incomplete. */
+  function stepValidationError(s: number): string | null {
+    if (s === 1) {
+      if (!form.practiceName.trim()) return "Enter your practice name to continue.";
+      if (!form.specialty) return "Select a specialty to continue.";
+      if (!form.providerFirstName.trim() || !form.providerLastName.trim())
+        return "Enter the primary provider's first and last name.";
+      if (!form.phone.trim()) return "Enter a phone number so patients can reach you.";
+    }
+    if (s === 4 && !form.address.trim()) {
+      return "Enter your office address to continue.";
+    }
+    return null;
+  }
+
   function nextStep() {
-    if (step < 6) setStep(step + 1);
+    if (step < 6 && !stepValidationError(step)) setStep(step + 1);
   }
 
   function prevStep() {
@@ -515,16 +530,41 @@ export default function OnboardingWizard() {
                   }}
                 />
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  const updated = form.customServices.filter((_, idx) => idx !== i);
-                  updateField("customServices", updated);
-                }}
-                className="self-start text-red-400 hover:text-red-600 text-sm mt-2"
-              >
-                Remove
-              </button>
+              <div className="flex flex-col gap-2 self-start mt-2">
+                {/* Custom services share the featured index space with the
+                    defaults: their global index is services.length + i,
+                    matching what buildSummary computes. */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateField(
+                      "featuredServiceIndex",
+                      form.featuredServiceIndex === form.services.length + i
+                        ? null
+                        : form.services.length + i,
+                    )
+                  }
+                  className={`text-sm font-medium ${
+                    form.featuredServiceIndex === form.services.length + i
+                      ? "text-teal-700"
+                      : "text-teal-600 hover:text-teal-700"
+                  }`}
+                >
+                  {form.featuredServiceIndex === form.services.length + i
+                    ? "Unfeature"
+                    : "Feature"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated = form.customServices.filter((_, idx) => idx !== i);
+                    updateField("customServices", updated);
+                  }}
+                  className="text-red-400 hover:text-red-600 text-sm"
+                >
+                  Remove
+                </button>
+              </div>
             </div>
           ))}
           <button
@@ -1273,13 +1313,23 @@ export default function OnboardingWizard() {
           )}
 
           {step < 6 && (
-            <button
-              type="button"
-              onClick={nextStep}
-              className="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-medium text-sm transition-colors"
-            >
-              Continue
-            </button>
+            <div className="flex items-center gap-3">
+              {stepValidationError(step) && (
+                <p className="text-xs text-amber-700">{stepValidationError(step)}</p>
+              )}
+              <button
+                type="button"
+                onClick={nextStep}
+                disabled={!!stepValidationError(step)}
+                className={`px-6 py-2.5 rounded-lg font-medium text-sm transition-colors ${
+                  stepValidationError(step)
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-teal-600 hover:bg-teal-700 text-white"
+                }`}
+              >
+                Continue
+              </button>
+            </div>
           )}
         </div>
       </div>
