@@ -195,26 +195,39 @@ export interface SEOConfig {
 // Prospect / Outreach Types
 // ============================================================
 
+export type OutreachStatus =
+  | "discovered"
+  | "no-website"
+  | "qualified"
+  | "demo-generated"
+  | "emailed"
+  | "opened"
+  | "clicked"
+  | "signed-up"
+  | "converted"
+  | "opted-out";
+
+/** A row from the `prospects` table (snake_case, matching the DB schema). */
 export interface Prospect {
   id: string;
-  practiceName: string;
-  providerName: string;
+  practice_name: string;
+  provider_name: string;
   specialty: string;
-  websiteUrl: string;
+  website_url: string | null;
   address: string;
   city: string;
   state: string;
   phone: string;
-  email?: string;
-  googleRating?: number;
-  googleReviewCount?: number;
-  currentPageSpeed?: number;
-  qualificationScore: number;
-  scrapedData?: Record<string, unknown>;
-  demoSlug?: string;
-  outreachStatus: "discovered" | "no-website" | "qualified" | "demo-generated" | "emailed" | "opened" | "clicked" | "signed-up" | "converted" | "opted-out";
-  emailSentAt?: string;
-  createdAt: string;
+  email: string | null;
+  google_rating: number | null;
+  google_review_count: number | null;
+  current_page_speed: number | null;
+  qualification_score: number;
+  scraped_data: Record<string, unknown> | null;
+  demo_slug: string | null;
+  outreach_status: OutreachStatus;
+  email_sent_at: string | null;
+  created_at: string;
 }
 
 export interface ScrapedWebsiteData {

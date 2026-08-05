@@ -13,30 +13,7 @@ import {
   Loader2,
 } from "lucide-react";
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-interface Prospect {
-  id: string;
-  practice_name: string;
-  provider_name: string;
-  specialty: string;
-  website_url: string | null;
-  address: string;
-  city: string;
-  state: string;
-  phone: string;
-  email: string | null;
-  google_rating: number | null;
-  google_review_count: number | null;
-  current_page_speed: number | null;
-  qualification_score: number;
-  scraped_data: Record<string, unknown> | null;
-  demo_slug: string | null;
-  outreach_status: string;
-  created_at: string;
-}
+import type { Prospect } from "@/types";
 
 type StatusFilter = "all" | "no-website" | "discovered" | "qualified" | "demo-generated";
 
