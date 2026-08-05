@@ -102,7 +102,6 @@ export default function GeneratedSite({ config }: GeneratedSiteProps) {
         <SiteContact
           location={primaryLocation}
           colorPalette={branding.colorPalette}
-          bookingUrl={bookingUrl}
           practiceName={config.practiceName}
           intakeForms={integrations.intakeForms}
           languages={primaryProvider?.languages ?? []}

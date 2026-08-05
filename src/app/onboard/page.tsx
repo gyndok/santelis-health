@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { createBrowserClient } from "@supabase/ssr";
 import type { User } from "@supabase/supabase-js";
 import OnboardingWizard from "@/components/onboarding/OnboardingWizard";
@@ -58,12 +59,12 @@ export default function OnboardPage() {
           soon to create your practice website.
         </p>
         <div className="flex flex-col gap-3">
-          <a
+          <Link
             href="/"
             className="inline-block px-6 py-3 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 transition-colors"
           >
             Back to Home
-          </a>
+          </Link>
           <button
             onClick={handleGoogleLogin}
             className="text-sm text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"

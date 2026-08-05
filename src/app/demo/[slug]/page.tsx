@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { PracticeConfig } from "@/types";
-import { specialtyConfigs } from "@/config/specialties";
 import GeneratedSite from "@/components/generated-site/GeneratedSite";
 import { getPracticeBySlug } from "@/lib/get-practice";
 
@@ -10,7 +9,6 @@ import { getPracticeBySlug } from "@/lib/get-practice";
 // Mock data — fallback when Supabase is unavailable
 // ---------------------------------------------------------------------------
 
-const obgynPalette = specialtyConfigs.obgyn.palette;
 
 const mockConfigs: Record<string, PracticeConfig> = {
   "kleins-womens-care": {

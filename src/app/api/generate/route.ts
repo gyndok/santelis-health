@@ -22,7 +22,6 @@ async function uniqueSubdomain(base: string): Promise<string> {
   let candidate = base;
   let suffix = 1;
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const { data } = await supabase
       .from("practices")

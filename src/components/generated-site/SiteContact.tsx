@@ -7,7 +7,6 @@ import { withAlpha } from "@/lib/color";
 interface SiteContactProps {
   location: OfficeLocation;
   colorPalette: ColorPalette;
-  bookingUrl?: string;
   practiceName: string;
   intakeForms?: IntakeForm[];
   languages?: string[];
@@ -16,7 +15,6 @@ interface SiteContactProps {
 export default function SiteContact({
   location,
   colorPalette,
-  bookingUrl,
   practiceName,
   intakeForms,
   languages,
