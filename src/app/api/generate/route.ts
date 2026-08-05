@@ -181,7 +181,9 @@ export async function POST(request: NextRequest) {
         practice_id: practiceId,
         title: svc.title,
         description: svc.description || "",
-        icon: svc.icon ?? null,
+        // Prefer the lucide icon name (rendered as a proper icon by the
+        // site) over the emoji fallback shown in the wizard UI.
+        icon: svc.iconName ?? svc.icon ?? null,
         featured: svc.featured ?? false,
         link_url: svc.linkUrl ?? null,
         display_order: idx,

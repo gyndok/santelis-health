@@ -239,6 +239,7 @@ export default function OnboardingWizard() {
           title: s.title,
           description: s.description,
           icon: s.icon,
+          iconName: s.iconName,
           featured: form.featuredServiceIndex === i,
         });
       }

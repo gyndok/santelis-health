@@ -115,6 +115,8 @@ export interface Integrations {
     features?: { label: string }[];
   };
   googleBusinessProfileId?: string;
+  /** Direct "leave a review" URL; takes precedence over the profile-id-derived link */
+  googleReviewUrl?: string;
 }
 
 export interface IntakeForm {

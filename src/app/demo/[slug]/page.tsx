@@ -180,7 +180,9 @@ const mockConfigs: Record<string, PracticeConfig> = {
         facebook: "https://www.facebook.com/groups/64781863202",
         youtube: "https://www.youtube.com/channel/UCFquFEcz5gwZQNVEyRGdkbg",
       },
-      googleBusinessProfileId: "ChIJR1ccgPImkkOEBM",
+      // No googleBusinessProfileId: the previous value was a truncated place
+      // ID that produced broken "Leave a Review" links. Set a real place ID
+      // (or integrations.googleReviewUrl) to enable the review buttons.
       community: {
         heading: "Join Our Community",
         description: "Connect with other patients and families in our Facebook group. Share experiences, get support, and see adorable baby photos from our practice family.",

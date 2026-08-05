@@ -89,6 +89,7 @@ export default function GeneratedSite({ config }: GeneratedSiteProps) {
         reviews={reviews}
         colorPalette={branding.colorPalette}
         googleBusinessProfileId={integrations.googleBusinessProfileId}
+        googleReviewUrl={integrations.googleReviewUrl}
       />
 
       <SiteAppointmentForm
