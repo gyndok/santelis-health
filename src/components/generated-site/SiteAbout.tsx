@@ -1,6 +1,7 @@
 "use client";
 
 import type { Provider, ColorPalette } from "@/types";
+import { providerDisplayName as formatProviderName } from "@/lib/site-format";
 
 interface SiteAboutProps {
   provider: Provider;
@@ -8,11 +9,11 @@ interface SiteAboutProps {
 }
 
 export default function SiteAbout({ provider, colorPalette }: SiteAboutProps) {
-  const providerDisplayName = `Dr. ${provider.firstName} ${provider.lastName}`;
+  const providerDisplayName = formatProviderName(provider);
 
   // Build credential badges from board certs + education highlights
   const badges: { title: string; subtitle: string }[] = provider.boardCertifications.map((cert) => ({
-    title: cert.board === cert.specialty ? cert.board : cert.board,
+    title: cert.board,
     subtitle: cert.specialty,
   }));
 

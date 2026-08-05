@@ -1,6 +1,7 @@
 "use client";
 
 import type { OfficeLocation, ColorPalette, IntakeForm } from "@/types";
+import { formatOfficeHours } from "@/lib/site-format";
 
 interface SiteContactProps {
   location: OfficeLocation;
@@ -115,19 +116,9 @@ export default function SiteContact({
                   Office Hours
                 </p>
                 <div className="text-sm space-y-1">
-                  {location.hours.monday && (
-                    <p>Mon&ndash;Thu: {location.hours.monday}</p>
-                  )}
-                  {location.hours.friday && (
-                    <p>Fri: {location.hours.friday}</p>
-                  )}
-                  <p>
-                    {!location.hours.saturday && !location.hours.sunday
-                      ? "Sat\u2013Sun: Closed"
-                      : `${location.hours.saturday ? `Sat: ${location.hours.saturday}` : "Sat: Closed"}${
-                          location.hours.sunday ? `, Sun: ${location.hours.sunday}` : ", Sun: Closed"
-                        }`}
-                  </p>
+                  {formatOfficeHours(location.hours).map((line) => (
+                    <p key={line}>{line}</p>
+                  ))}
                 </div>
               </div>
             </div>

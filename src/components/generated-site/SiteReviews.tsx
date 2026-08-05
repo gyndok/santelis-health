@@ -1,6 +1,7 @@
 "use client";
 
 import type { Review, ColorPalette } from "@/types";
+import { starString, initials, formatReviewDate } from "@/lib/site-format";
 
 interface SiteReviewsProps {
   reviews: Review[];
@@ -49,7 +50,7 @@ export default function SiteReviews({
             {avgRating.toFixed(1)}
           </span>
           <div className="text-2xl mt-1" style={{ color: colorPalette.primary }}>
-            &#9733;&#9733;&#9733;&#9733;&#9733;
+            {starString(avgRating)}
           </div>
           <p className="text-sm mt-2" style={{ color: colorPalette.neutral }}>
             Based on {reviews.length} Google review{reviews.length !== 1 ? "s" : ""}
@@ -68,7 +69,7 @@ export default function SiteReviews({
                     color: colorPalette.primaryDark,
                   }}
                 >
-                  {review.authorName[0]}
+                  {initials(review.authorName)}
                 </div>
                 <div>
                   <p
@@ -78,12 +79,7 @@ export default function SiteReviews({
                     {review.authorName}
                   </p>
                   <p className="text-xs" style={{ color: colorPalette.neutral }}>
-                    {review.date
-                      ? new Date(review.date).toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "short",
-                        })
-                      : ""}
+                    {formatReviewDate(review.date)}
                   </p>
                 </div>
               </div>

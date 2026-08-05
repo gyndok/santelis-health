@@ -1,6 +1,7 @@
 "use client";
 
 import type { Provider, ColorPalette } from "@/types";
+import { providerDisplayName, initials as makeInitials } from "@/lib/site-format";
 
 interface SiteProvidersProps {
   providers: Provider[];
@@ -62,8 +63,8 @@ function ProviderCard({
   provider: Provider;
   colorPalette: ColorPalette;
 }) {
-  const displayName = `Dr. ${provider.firstName} ${provider.lastName}`;
-  const initials = `${provider.firstName[0]}${provider.lastName[0]}`;
+  const displayName = providerDisplayName(provider);
+  const initials = makeInitials(provider.firstName, provider.lastName);
 
   return (
     <div
