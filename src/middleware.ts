@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { parseAdminEmails, isAdminEmail } from "@/lib/admin-auth";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -58,10 +59,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Admin routes: restrict to ADMIN_EMAILS
+  // Admin routes: restrict to ADMIN_EMAILS (fail closed if unset)
   if (isAdmin) {
-    const allowedEmails = process.env.ADMIN_EMAILS?.split(",").map((e) => e.trim());
-    if (allowedEmails && allowedEmails.length > 0 && !allowedEmails.includes(user.email || "")) {
+    if (!isAdminEmail(user.email, parseAdminEmails(process.env.ADMIN_EMAILS))) {
       const loginUrl = new URL("/admin/login", request.url);
       loginUrl.searchParams.set("error", "unauthorized");
       return NextResponse.redirect(loginUrl);
