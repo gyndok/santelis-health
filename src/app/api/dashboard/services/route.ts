@@ -12,30 +12,15 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "services must be an array" }, { status: 400 });
     }
 
-    await supabase.from("services").delete().eq("practice_id", auth.practiceId);
+    // Atomic replace: delete + insert run in one transaction inside the RPC.
+    const { data, error } = await supabase.rpc("replace_services", {
+      p_practice_id: auth.practiceId,
+      p_rows: services,
+    });
 
-    if (services.length > 0) {
-      const rows = services.map((s: Record<string, unknown>, i: number) => ({
-        practice_id: auth.practiceId,
-        title: s.title || "",
-        description: s.description || "",
-        icon: s.icon || null,
-        featured: s.featured ?? false,
-        link_url: s.link_url || null,
-        display_order: i,
-      }));
-
-      const { error } = await supabase.from("services").insert(rows);
-      if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
-
-    const { data } = await supabase
-      .from("services")
-      .select("*")
-      .eq("practice_id", auth.practiceId)
-      .order("display_order");
 
     return NextResponse.json({ services: data });
   } catch (err) {
