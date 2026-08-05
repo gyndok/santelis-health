@@ -56,10 +56,11 @@ export async function authenticateDashboard(
 
   // Find practice by owner_email
   const admin = getSupabaseAdmin();
+  // ilike = case-insensitive match; escape % _ \ so the email is a literal pattern
   const { data: practice, error } = await admin
     .from("practices")
     .select("id")
-    .eq("owner_email", userEmail)
+    .ilike("owner_email", userEmail.replace(/([%_\\])/g, "\\$1"))
     .limit(1)
     .maybeSingle();
 
