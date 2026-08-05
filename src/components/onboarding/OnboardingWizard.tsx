@@ -1142,6 +1142,27 @@ export default function OnboardingWizard() {
             setIsGenerating(true);
             try {
               const summary = buildSummary();
+
+              // Upload logo/hero images first so their URLs make it into
+              // the practice branding (previously the files were discarded).
+              async function uploadImage(file: File): Promise<string> {
+                const fd = new FormData();
+                fd.append("file", file);
+                const uploadRes = await fetch("/api/upload", { method: "POST", body: fd });
+                const uploadData = await uploadRes.json();
+                if (!uploadRes.ok) {
+                  throw new Error(uploadData.error || "Image upload failed");
+                }
+                return uploadData.url as string;
+              }
+
+              if (form.logoFile && summary.branding) {
+                summary.branding.logoUrl = await uploadImage(form.logoFile);
+              }
+              if (form.heroFile && summary.branding) {
+                summary.branding.heroImageUrl = await uploadImage(form.heroFile);
+              }
+
               const res = await fetch("/api/generate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -1153,8 +1174,12 @@ export default function OnboardingWizard() {
                 return;
               }
               router.push(`/demo/${data.slug}`);
-            } catch {
-              setGenerateError("Network error. Please check your connection and try again.");
+            } catch (err) {
+              setGenerateError(
+                err instanceof Error && err.message
+                  ? err.message
+                  : "Network error. Please check your connection and try again.",
+              );
             } finally {
               setIsGenerating(false);
             }
