@@ -98,17 +98,14 @@ export default function SiteReviews({
               href={reviewLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold transition-colors"
-              style={{
-                backgroundColor: btnPrimaryBg,
-                color: btnPrimaryText,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = colorPalette.primary;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = btnPrimaryBg;
-              }}
+              className="site-btn-primary inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold transition-colors"
+              style={
+                {
+                  "--btn-bg": btnPrimaryBg,
+                  "--btn-hover-bg": colorPalette.primary,
+                  color: btnPrimaryText,
+                } as React.CSSProperties
+              }
             >
               Leave a Review &rarr;
             </a>
@@ -118,20 +115,14 @@ export default function SiteReviews({
               href={allReviewsLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold border-2 transition-colors"
-              style={{
-                borderColor: btnSecBorder,
-                color: btnSecText,
-                backgroundColor: "transparent",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = btnSecBorder;
-                e.currentTarget.style.color = "#ffffff";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.color = btnSecText;
-              }}
+              className="site-btn-secondary inline-flex items-center justify-center px-8 py-3 rounded-lg font-semibold border-2 transition-colors"
+              style={
+                {
+                  "--btn-hover-bg": btnSecBorder,
+                  borderColor: btnSecBorder,
+                  color: btnSecText,
+                } as React.CSSProperties
+              }
             >
               Read All Reviews
             </a>

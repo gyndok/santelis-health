@@ -140,17 +140,14 @@ export default function SiteContact({
                       href={form.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm px-4 py-2 rounded-lg font-medium transition-colors"
-                      style={{
-                        backgroundColor: withAlpha(colorPalette.primary, 0.1),
-                        color: colorPalette.primaryDark,
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = withAlpha(colorPalette.primary, 0.2);
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = withAlpha(colorPalette.primary, 0.1);
-                      }}
+                      className="site-tag text-sm px-4 py-2 rounded-lg font-medium transition-colors"
+                      style={
+                        {
+                          "--tag-bg": withAlpha(colorPalette.primary, 0.1),
+                          "--tag-hover-bg": withAlpha(colorPalette.primary, 0.2),
+                          color: colorPalette.primaryDark,
+                        } as React.CSSProperties
+                      }
                     >
                       {form.name} &rarr;
                     </a>

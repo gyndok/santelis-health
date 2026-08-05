@@ -79,36 +79,27 @@ export default function SiteHero({
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <a
                   href={bookingUrl || "#appointment"}
-                  className="inline-flex items-center justify-center font-semibold px-8 py-3 rounded-lg transition-colors"
-                  style={{
-                    backgroundColor: btnPrimaryBg,
-                    color: btnPrimaryText,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = colorPalette.primary;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = btnPrimaryBg;
-                  }}
+                  className="site-btn-primary inline-flex items-center justify-center font-semibold px-8 py-3 rounded-lg transition-colors"
+                  style={
+                    {
+                      "--btn-bg": btnPrimaryBg,
+                      "--btn-hover-bg": colorPalette.primary,
+                      color: btnPrimaryText,
+                    } as React.CSSProperties
+                  }
                 >
                   Book Appointment
                 </a>
                 <a
                   href={`tel:${phone.replace(/[^\d+]/g, "")}`}
-                  className="inline-flex items-center justify-center font-semibold px-8 py-3 rounded-lg border-2 transition-colors"
-                  style={{
-                    borderColor: btnSecBorder,
-                    color: btnSecText,
-                    backgroundColor: "transparent",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = btnSecBorder;
-                    e.currentTarget.style.color = "#ffffff";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                    e.currentTarget.style.color = btnSecText;
-                  }}
+                  className="site-btn-secondary inline-flex items-center justify-center font-semibold px-8 py-3 rounded-lg border-2 transition-colors"
+                  style={
+                    {
+                      "--btn-hover-bg": btnSecBorder,
+                      borderColor: btnSecBorder,
+                      color: btnSecText,
+                    } as React.CSSProperties
+                  }
                 >
                   Call {phone}
                 </a>

@@ -46,10 +46,13 @@ export default function SiteHeader({ practiceName, branding, bookingUrl }: SiteH
             <a
               key={link.href}
               href={link.href}
-              className="text-sm font-medium transition-colors"
-              style={{ color: colorPalette.neutral }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = colorPalette.primary)}
-              onMouseLeave={(e) => (e.currentTarget.style.color = colorPalette.neutral)}
+              className="site-nav-link text-sm font-medium transition-colors"
+              style={
+                {
+                  "--link-color": colorPalette.neutral,
+                  "--link-hover-color": colorPalette.primary,
+                } as React.CSSProperties
+              }
             >
               {link.label}
             </a>

@@ -24,3 +24,46 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ------------------------------------------------------------------
+   Generated-site hover states.
+   Palette values arrive via CSS custom properties set inline on each
+   element; hover rules live here (not in JS mouse handlers) and are
+   scoped to hover-capable devices so touch screens never get a stuck
+   hover state.
+------------------------------------------------------------------- */
+.site-btn-primary {
+  background-color: var(--btn-bg);
+}
+.site-btn-secondary {
+  background-color: transparent;
+}
+.site-tag {
+  background-color: var(--tag-bg);
+}
+.site-card-hover {
+  box-shadow: var(--card-shadow);
+}
+.site-nav-link {
+  color: var(--link-color);
+}
+
+@media (hover: hover) {
+  .site-btn-primary:hover {
+    background-color: var(--btn-hover-bg);
+  }
+  .site-btn-secondary:hover {
+    background-color: var(--btn-hover-bg);
+    color: #ffffff;
+  }
+  .site-tag:hover {
+    background-color: var(--tag-hover-bg);
+  }
+  .site-card-hover:hover {
+    box-shadow: var(--card-hover-shadow);
+    transform: translateY(-4px);
+  }
+  .site-nav-link:hover {
+    color: var(--link-hover-color);
+  }
+}

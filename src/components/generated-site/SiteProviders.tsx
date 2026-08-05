@@ -69,16 +69,13 @@ function ProviderCard({
 
   return (
     <div
-      className="rounded-xl border border-gray-200 bg-white p-6 text-center transition-all duration-300"
-      style={{ boxShadow: `0 4px 20px -2px ${withAlpha(colorPalette.primary, 0.1)}` }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = `0 8px 30px -4px ${withAlpha(colorPalette.primary, 0.2)}`;
-        e.currentTarget.style.transform = "translateY(-4px)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = `0 4px 20px -2px ${withAlpha(colorPalette.primary, 0.1)}`;
-        e.currentTarget.style.transform = "translateY(0)";
-      }}
+      className="site-card-hover rounded-xl border border-gray-200 bg-white p-6 text-center transition-all duration-300"
+      style={
+        {
+          "--card-shadow": `0 4px 20px -2px ${withAlpha(colorPalette.primary, 0.1)}`,
+          "--card-hover-shadow": `0 8px 30px -4px ${withAlpha(colorPalette.primary, 0.2)}`,
+        } as React.CSSProperties
+      }
     >
       {provider.photoUrl ? (
         <img

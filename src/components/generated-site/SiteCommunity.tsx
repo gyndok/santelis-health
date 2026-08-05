@@ -85,17 +85,14 @@ export default function SiteCommunity({ community, colorPalette }: SiteCommunity
             href={community.ctaUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-8 py-3 rounded-lg font-semibold transition-colors"
-            style={{
-              backgroundColor: btnPrimaryBg,
-              color: btnPrimaryText,
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = colorPalette.primary;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = btnPrimaryBg;
-            }}
+            className="site-btn-primary inline-flex items-center gap-2 px-8 py-3 rounded-lg font-semibold transition-colors"
+            style={
+              {
+                "--btn-bg": btnPrimaryBg,
+                "--btn-hover-bg": colorPalette.primary,
+                color: btnPrimaryText,
+              } as React.CSSProperties
+            }
           >
             {community.ctaText}
             <ArrowRight className="w-4 h-4" />
