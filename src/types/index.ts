@@ -49,6 +49,8 @@ export interface Service {
   title: string;
   description: string;
   icon?: string;
+  /** Lucide icon name (e.g. "Baby", "Heart", "Scissors") — preferred over emoji icon */
+  iconName?: string;
   featured: boolean;
   linkUrl?: string;
 }
@@ -104,6 +106,14 @@ export interface Integrations {
     twitter?: string;
     linkedin?: string;
   };
+  /** Community section — e.g. Facebook group CTA */
+  community?: {
+    heading: string;
+    description: string;
+    ctaText: string;
+    ctaUrl: string;
+    features?: { label: string }[];
+  };
   googleBusinessProfileId?: string;
 }
 
@@ -133,6 +143,18 @@ export interface ColorPalette {
   accent: string;
   neutral: string;
   neutralDark: string;
+  /** Optional extended palette — clients can fine-tune these */
+  heroGradientStart?: string;
+  heroGradientEnd?: string;
+  sectionAltBg?: string;       // alternating section background (default: accent at 20%)
+  cardShadow?: string;         // e.g. "0 4px 20px -2px rgba(74,109,124,0.1)"
+  cardHoverShadow?: string;    // e.g. "0 8px 30px -4px rgba(74,109,124,0.2)"
+  buttonPrimaryBg?: string;    // override for primary button bg
+  buttonPrimaryText?: string;  // override for primary button text
+  buttonSecondaryBorder?: string;
+  buttonSecondaryText?: string;
+  footerBg?: string;           // override for footer background
+  footerText?: string;         // override for footer text
 }
 
 /** Full practice configuration — the core data model */

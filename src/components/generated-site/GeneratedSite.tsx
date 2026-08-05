@@ -4,6 +4,7 @@ import SiteHero from "./SiteHero";
 import SiteAbout from "./SiteAbout";
 import SiteProviders from "./SiteProviders";
 import SiteServices from "./SiteServices";
+import SiteCommunity from "./SiteCommunity";
 import SiteReviews from "./SiteReviews";
 import SiteAppointmentForm from "./SiteAppointmentForm";
 import SiteContact from "./SiteContact";
@@ -18,6 +19,7 @@ export default function GeneratedSite({ config }: GeneratedSiteProps) {
   const primaryProvider = providers[0];
   const primaryLocation = locations[0];
   const bookingUrl = integrations.appointmentBooking?.url;
+  const providerName = `${primaryProvider.firstName} ${primaryProvider.lastName}, ${primaryProvider.credentials}`;
 
   return (
     <div
@@ -29,7 +31,7 @@ export default function GeneratedSite({ config }: GeneratedSiteProps) {
           "--site-accent": branding.colorPalette.accent,
           "--site-neutral": branding.colorPalette.neutral,
           "--site-neutral-dark": branding.colorPalette.neutralDark,
-          fontFamily: branding.fontFamily || "inherit",
+          fontFamily: branding.fontFamily || "Inter, system-ui, -apple-system, sans-serif",
         } as React.CSSProperties
       }
     >
@@ -66,6 +68,13 @@ export default function GeneratedSite({ config }: GeneratedSiteProps) {
         practiceName={config.practiceName}
       />
 
+      {integrations.community && (
+        <SiteCommunity
+          community={integrations.community}
+          colorPalette={branding.colorPalette}
+        />
+      )}
+
       <SiteReviews
         reviews={reviews}
         colorPalette={branding.colorPalette}
@@ -83,6 +92,8 @@ export default function GeneratedSite({ config }: GeneratedSiteProps) {
         colorPalette={branding.colorPalette}
         bookingUrl={bookingUrl}
         practiceName={config.practiceName}
+        intakeForms={integrations.intakeForms}
+        languages={primaryProvider.languages}
       />
 
       <SiteFooter
@@ -90,6 +101,8 @@ export default function GeneratedSite({ config }: GeneratedSiteProps) {
         location={primaryLocation}
         colorPalette={branding.colorPalette}
         socialMedia={integrations.socialMedia}
+        providerName={providerName}
+        bookingUrl={bookingUrl}
       />
     </div>
   );

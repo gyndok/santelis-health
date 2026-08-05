@@ -61,7 +61,7 @@ export default function SiteAppointmentForm({
     <section
       id="appointment"
       className="py-20 md:py-24"
-      style={{ backgroundColor: `${colorPalette.accent}33` }}
+      style={{ backgroundColor: "#ffffff" }}
     >
       <div className="container mx-auto px-4 max-w-2xl">
         <h2

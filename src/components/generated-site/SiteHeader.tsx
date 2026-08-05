@@ -23,7 +23,8 @@ export default function SiteHeader({ practiceName, branding, bookingUrl }: SiteH
 
   return (
     <header
-      className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200"
+      className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b"
+      style={{ borderColor: branding.colorPalette.accent }}
     >
       <nav className="container mx-auto px-4 py-4 flex items-center justify-between">
         {/* Logo / Practice Name */}
@@ -86,7 +87,7 @@ export default function SiteHeader({ practiceName, branding, bookingUrl }: SiteH
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-200 bg-white">
+        <div className="md:hidden border-t bg-white" style={{ borderColor: branding.colorPalette.accent }}>
           <div className="container mx-auto px-4 py-4 flex flex-col gap-4">
             {navLinks.map((link) => (
               <a

@@ -1,3 +1,5 @@
+"use client";
+
 import type { Provider, ColorPalette } from "@/types";
 
 interface SiteProvidersProps {
@@ -64,7 +66,18 @@ function ProviderCard({
   const initials = `${provider.firstName[0]}${provider.lastName[0]}`;
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-6 text-center hover:shadow-lg transition-shadow">
+    <div
+      className="rounded-xl border border-gray-200 bg-white p-6 text-center transition-all duration-300"
+      style={{ boxShadow: `0 4px 20px -2px ${colorPalette.primary}1a` }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.boxShadow = `0 8px 30px -4px ${colorPalette.primary}33`;
+        e.currentTarget.style.transform = "translateY(-4px)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = `0 4px 20px -2px ${colorPalette.primary}1a`;
+        e.currentTarget.style.transform = "translateY(0)";
+      }}
+    >
       {provider.photoUrl ? (
         <img
           src={provider.photoUrl}

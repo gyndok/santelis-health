@@ -1,10 +1,14 @@
-import type { OfficeLocation, ColorPalette } from "@/types";
+"use client";
+
+import type { OfficeLocation, ColorPalette, IntakeForm } from "@/types";
 
 interface SiteContactProps {
   location: OfficeLocation;
   colorPalette: ColorPalette;
   bookingUrl?: string;
   practiceName: string;
+  intakeForms?: IntakeForm[];
+  languages?: string[];
 }
 
 export default function SiteContact({
@@ -12,167 +16,181 @@ export default function SiteContact({
   colorPalette,
   bookingUrl,
   practiceName,
+  intakeForms,
+  languages,
 }: SiteContactProps) {
-  const fullAddress = `${location.address}, ${location.city}, ${location.state} ${location.zip}`;
-
-  const days: { key: keyof typeof location.hours; label: string }[] = [
-    { key: "monday", label: "Monday" },
-    { key: "tuesday", label: "Tuesday" },
-    { key: "wednesday", label: "Wednesday" },
-    { key: "thursday", label: "Thursday" },
-    { key: "friday", label: "Friday" },
-    { key: "saturday", label: "Saturday" },
-    { key: "sunday", label: "Sunday" },
-  ];
-
   return (
-    <section
-      id="contact"
-      className="py-20 md:py-24"
-      style={{ backgroundColor: colorPalette.accent + "33" }}
-    >
-      <div className="container mx-auto px-4 max-w-5xl">
+    <section id="contact" className="py-20 bg-white">
+      <div className="container mx-auto px-4">
         <h2
-          className="text-3xl font-bold text-center mb-12"
+          className="text-3xl font-bold mb-12 text-center"
           style={{ color: colorPalette.neutralDark }}
         >
-          Contact Us
+          Contact &amp; Location
         </h2>
 
-        <div className="grid md:grid-cols-2 gap-10">
-          {/* Left: Info */}
-          <div className="space-y-8">
-            {/* Address */}
-            <div>
-              <h3
-                className="text-sm font-semibold uppercase tracking-wider mb-2"
-                style={{ color: colorPalette.neutral }}
-              >
-                Location
-              </h3>
-              <p className="text-gray-800 font-medium">{practiceName}</p>
-              {location.name && (
-                <p className="text-gray-600 text-sm">{location.name}</p>
-              )}
-              <p className="text-gray-600">{location.address}</p>
-              <p className="text-gray-600">
-                {location.city}, {location.state} {location.zip}
-              </p>
-            </div>
+        <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+          {/* Info side */}
+          <div>
+            <h3
+              className="text-xl font-bold mb-4"
+              style={{ color: colorPalette.neutralDark }}
+            >
+              {practiceName}
+            </h3>
 
-            {/* Phone & Email */}
-            <div>
-              <h3
-                className="text-sm font-semibold uppercase tracking-wider mb-2"
-                style={{ color: colorPalette.neutral }}
-              >
-                Phone
-              </h3>
-              <a
-                href={`tel:${location.phone.replace(/[^\d+]/g, "")}`}
-                className="text-lg font-medium hover:underline"
-                style={{ color: colorPalette.primary }}
-              >
-                {location.phone}
-              </a>
-              {location.fax && (
-                <p className="text-gray-500 text-sm mt-1">
-                  Fax: {location.fax}
+            <div className="space-y-4" style={{ color: colorPalette.neutral }}>
+              {/* Address */}
+              <div>
+                <p
+                  className="font-semibold text-sm uppercase tracking-wide mb-1"
+                  style={{ color: colorPalette.neutralDark }}
+                >
+                  Address
                 </p>
-              )}
-              {location.email && (
-                <div className="mt-3">
-                  <h3
-                    className="text-sm font-semibold uppercase tracking-wider mb-1"
-                    style={{ color: colorPalette.neutral }}
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                    `${location.address} ${location.city} ${location.state} ${location.zip}`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline"
+                  style={{ color: colorPalette.primaryDark }}
+                >
+                  {location.address}
+                  <br />
+                  {location.city}, {location.state} {location.zip}
+                </a>
+              </div>
+
+              {/* Phone */}
+              <div>
+                <p
+                  className="font-semibold text-sm uppercase tracking-wide mb-1"
+                  style={{ color: colorPalette.neutralDark }}
+                >
+                  Phone
+                </p>
+                <a
+                  href={`tel:${location.phone.replace(/[^\d+]/g, "")}`}
+                  className="hover:underline"
+                  style={{ color: colorPalette.primaryDark }}
+                >
+                  {location.phone}
+                </a>
+              </div>
+
+              {/* Fax */}
+              {location.fax && (
+                <div>
+                  <p
+                    className="font-semibold text-sm uppercase tracking-wide mb-1"
+                    style={{ color: colorPalette.neutralDark }}
                   >
-                    Email
-                  </h3>
-                  <a
-                    href={`mailto:${location.email}`}
-                    className="text-sm hover:underline"
-                    style={{ color: colorPalette.primary }}
-                  >
-                    {location.email}
-                  </a>
+                    Fax
+                  </p>
+                  <p>{location.fax}</p>
                 </div>
               )}
+
+              {/* Languages */}
+              {languages && languages.length > 0 && (
+                <div>
+                  <p
+                    className="font-semibold text-sm uppercase tracking-wide mb-1"
+                    style={{ color: colorPalette.neutralDark }}
+                  >
+                    Languages
+                  </p>
+                  <p>{languages.join(", ")}</p>
+                </div>
+              )}
+
+              {/* Office Hours */}
+              <div>
+                <p
+                  className="font-semibold text-sm uppercase tracking-wide mb-1"
+                  style={{ color: colorPalette.neutralDark }}
+                >
+                  Office Hours
+                </p>
+                <div className="text-sm space-y-1">
+                  {location.hours.monday && (
+                    <p>Mon&ndash;Thu: {location.hours.monday}</p>
+                  )}
+                  {location.hours.friday && (
+                    <p>Fri: {location.hours.friday}</p>
+                  )}
+                  <p>
+                    {!location.hours.saturday && !location.hours.sunday
+                      ? "Sat\u2013Sun: Closed"
+                      : `${location.hours.saturday ? `Sat: ${location.hours.saturday}` : "Sat: Closed"}${
+                          location.hours.sunday ? `, Sun: ${location.hours.sunday}` : ", Sun: Closed"
+                        }`}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            {/* Office Hours */}
-            <div>
-              <h3
-                className="text-sm font-semibold uppercase tracking-wider mb-3"
-                style={{ color: colorPalette.neutral }}
-              >
-                Office Hours
-              </h3>
-              <table className="w-full text-sm">
-                <tbody>
-                  {days.map(({ key, label }) => {
-                    const hours = location.hours[key];
-                    return (
-                      <tr key={key} className="border-b border-gray-100">
-                        <td className="py-2 font-medium text-gray-700 w-32">
-                          {label}
-                        </td>
-                        <td className="py-2 text-gray-600">
-                          {hours || "Closed"}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-
-            {/* CTA */}
-            <a
-              href={bookingUrl || "#"}
-              className="inline-block text-white font-semibold px-8 py-3.5 rounded-lg transition-opacity hover:opacity-90 text-center"
-              style={{ backgroundColor: colorPalette.primary }}
-            >
-              Book an Appointment
-            </a>
+            {/* Intake Form Links — styled tags */}
+            {intakeForms && intakeForms.length > 0 && (
+              <div className="mt-8">
+                <p
+                  className="font-semibold text-sm uppercase tracking-wide mb-3"
+                  style={{ color: colorPalette.neutralDark }}
+                >
+                  New Patient Forms
+                </p>
+                <div className="flex flex-col gap-2">
+                  {intakeForms.map((form, i) => (
+                    <a
+                      key={i}
+                      href={form.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm px-4 py-2 rounded-lg font-medium transition-colors"
+                      style={{
+                        backgroundColor: `${colorPalette.primary}1a`,
+                        color: colorPalette.primaryDark,
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = `${colorPalette.primary}33`;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = `${colorPalette.primary}1a`;
+                      }}
+                    >
+                      {form.name} &rarr;
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Right: Map */}
+          {/* Map side */}
           <div>
             {location.googleMapsEmbedUrl ? (
-              <iframe
-                src={location.googleMapsEmbedUrl}
-                width="100%"
-                height="400"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                className="rounded-xl"
-                title={`Map of ${practiceName}`}
-              />
+              <div className="rounded-2xl overflow-hidden shadow-md h-80 md:h-full min-h-[320px]">
+                <iframe
+                  src={location.googleMapsEmbedUrl}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title={`${practiceName} Location`}
+                />
+              </div>
             ) : (
-              <div className="w-full h-[400px] rounded-xl bg-gray-100 flex items-center justify-center">
+              <div className="w-full h-80 md:h-full min-h-[320px] rounded-2xl bg-gray-100 flex items-center justify-center">
                 <div className="text-center text-gray-400">
-                  <svg
-                    className="w-12 h-12 mx-auto mb-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
+                  <svg className="w-12 h-12 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  <p className="text-sm">{fullAddress}</p>
+                  <p className="text-sm">{location.address}, {location.city}, {location.state} {location.zip}</p>
                 </div>
               </div>
             )}

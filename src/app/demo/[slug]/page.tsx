@@ -73,35 +73,35 @@ const mockConfigs: Record<string, PracticeConfig> = {
         id: "svc-0",
         title: "Obstetric Care",
         description: "Prenatal care, high-risk pregnancies, vaginal delivery, C-section, VBAC, postpartum care.",
-        icon: "👶",
+        iconName: "Baby",
         featured: false,
       },
       {
         id: "svc-1",
         title: "Gynecologic Surgery",
         description: "Robotic assisted Da Vinci surgery, hysterectomy, endometrial ablation (NovaSure), bilateral salpingectomy, LEEP, diagnostic laparoscopy.",
-        icon: "⚕️",
+        iconName: "Scissors",
         featured: false,
       },
       {
         id: "svc-2",
         title: "Women's Health",
         description: "Annual well-woman exams, pap smears, mammography screening, hormone replacement therapy, menopause care.",
-        icon: "❤️",
+        iconName: "Heart",
         featured: false,
       },
       {
         id: "svc-3",
         title: "Family Planning",
         description: "Birth control counseling, IUD placement and removal, contraceptive implants, infertility evaluation, tubal ligation.",
-        icon: "👨‍👩‍👧‍👦",
+        iconName: "Users",
         featured: false,
       },
       {
         id: "svc-4",
         title: "Weight Loss Clinic",
         description: "Board certified obesity medicine. Personalized weight management programs, anti-obesity medications including GLP-1 receptor agonists, and telemedicine options.",
-        icon: "⚖️",
+        iconName: "Scale",
         featured: true,
         linkUrl: "https://geffreyklein.com/weight-loss",
       },
@@ -109,7 +109,7 @@ const mockConfigs: Record<string, PracticeConfig> = {
         id: "svc-5",
         title: "Specialized Treatments",
         description: "Endometriosis treatment, uterine fibroids, cervical dysplasia, STD testing and treatment, suction D&C.",
-        icon: "🩺",
+        iconName: "Microscope",
         featured: false,
       },
     ],
@@ -171,9 +171,26 @@ const mockConfigs: Record<string, PracticeConfig> = {
         type: "intakeq",
         url: "https://geffreyklein.com/appointment",
       },
+      intakeForms: [
+        { name: "New OB Patient", url: "https://geffreyklein.com/intake-ob" },
+        { name: "New GYN Patient", url: "https://geffreyklein.com/intake-gyn" },
+        { name: "Weight Loss Intake", url: "https://geffreyklein.com/intake-wl" },
+      ],
       socialMedia: {
         facebook: "https://www.facebook.com/groups/64781863202",
         youtube: "https://www.youtube.com/channel/UCFquFEcz5gwZQNVEyRGdkbg",
+      },
+      googleBusinessProfileId: "ChIJR1ccgPImkkOEBM",
+      community: {
+        heading: "Join Our Community",
+        description: "Connect with other patients and families in our Facebook group. Share experiences, get support, and see adorable baby photos from our practice family.",
+        ctaText: "Join the Group",
+        ctaUrl: "https://www.facebook.com/groups/64781863202",
+        features: [
+          { label: "Support" },
+          { label: "Community" },
+          { label: "Baby Photos" },
+        ],
       },
     },
     branding: {
@@ -230,9 +247,12 @@ const mockConfigs: Record<string, PracticeConfig> = {
 // ---------------------------------------------------------------------------
 
 async function getConfig(slug: string): Promise<PracticeConfig | undefined> {
+  // Mock configs are curated showcase demos — always prefer them
+  if (mockConfigs[slug]) return mockConfigs[slug];
+  // Fall back to Supabase for dynamically generated demos
   const dbConfig = await getPracticeBySlug(slug);
   if (dbConfig) return dbConfig;
-  return mockConfigs[slug];
+  return undefined;
 }
 
 // ---------------------------------------------------------------------------

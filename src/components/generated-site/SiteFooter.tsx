@@ -1,3 +1,5 @@
+"use client";
+
 import type { PracticeConfig, ColorPalette } from "@/types";
 
 interface SiteFooterProps {
@@ -5,6 +7,8 @@ interface SiteFooterProps {
   location: PracticeConfig["locations"][0];
   colorPalette: ColorPalette;
   socialMedia?: PracticeConfig["integrations"]["socialMedia"];
+  providerName?: string;
+  bookingUrl?: string;
 }
 
 export default function SiteFooter({
@@ -12,80 +16,86 @@ export default function SiteFooter({
   location,
   colorPalette,
   socialMedia,
+  providerName,
+  bookingUrl,
 }: SiteFooterProps) {
-  const navLinks = [
-    { label: "About", href: "#about" },
-    { label: "Services", href: "#services" },
-    { label: "Reviews", href: "#reviews" },
-    { label: "Contact", href: "#contact" },
-  ];
+  const footerBg = colorPalette.footerBg || colorPalette.neutralDark;
+  const footerText = colorPalette.footerText || colorPalette.accent;
 
   return (
     <footer
       className="py-12"
-      style={{ backgroundColor: colorPalette.neutralDark, color: "#9ca3af" }}
+      style={{ backgroundColor: footerBg, color: footerText }}
     >
       <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-3 gap-8 mb-8">
+        <div className="grid md:grid-cols-3 gap-8">
           {/* Practice Info */}
           <div>
-            <p className="text-lg font-bold text-white mb-2">{practiceName}</p>
+            <h3 className="text-white font-bold text-lg mb-3">
+              {providerName || practiceName}
+            </h3>
+            {providerName && (
+              <p className="text-sm">{practiceName}</p>
+            )}
             <p className="text-sm">{location.address}</p>
             <p className="text-sm">
               {location.city}, {location.state} {location.zip}
             </p>
-            <a
-              href={`tel:${location.phone.replace(/[^\d+]/g, "")}`}
-              className="text-sm hover:text-white transition-colors mt-2 inline-block"
-              style={{ color: colorPalette.accent }}
-            >
-              {location.phone}
-            </a>
           </div>
 
-          {/* Navigation */}
+          {/* Contact */}
           <div>
-            <p className="text-sm font-semibold text-white uppercase tracking-wider mb-3">
-              Navigation
+            <h3 className="text-white font-bold text-lg mb-3">Contact</h3>
+            <p className="text-sm">
+              Phone:{" "}
+              <a
+                href={`tel:${location.phone.replace(/[^\d+]/g, "")}`}
+                className="hover:text-white"
+              >
+                {location.phone}
+              </a>
             </p>
-            <ul className="space-y-2">
-              {navLinks.map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className="text-sm hover:text-white transition-colors"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            {location.fax && (
+              <p className="text-sm">Fax: {location.fax}</p>
+            )}
+            {location.email && (
+              <p className="text-sm">
+                <a
+                  href={`mailto:${location.email}`}
+                  className="hover:text-white"
+                >
+                  {location.email}
+                </a>
+              </p>
+            )}
           </div>
 
-          {/* Social / Contact */}
+          {/* Quick Links */}
           <div>
-            <p className="text-sm font-semibold text-white uppercase tracking-wider mb-3">
-              Connect
-            </p>
-            <div className="flex flex-wrap gap-3">
+            <h3 className="text-white font-bold text-lg mb-3">Quick Links</h3>
+            <div className="space-y-1">
+              <a href="#about" className="block text-sm hover:text-white">
+                About
+              </a>
+              <a href="#services" className="block text-sm hover:text-white">
+                Services
+              </a>
+              <a href="#reviews" className="block text-sm hover:text-white">
+                Reviews
+              </a>
+              {bookingUrl && (
+                <a href={bookingUrl} className="block text-sm hover:text-white">
+                  Book Appointment
+                </a>
+              )}
               {socialMedia?.facebook && (
                 <a
                   href={socialMedia.facebook}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm hover:text-white transition-colors"
+                  className="block text-sm hover:text-white"
                 >
                   Facebook
-                </a>
-              )}
-              {socialMedia?.instagram && (
-                <a
-                  href={socialMedia.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm hover:text-white transition-colors"
-                >
-                  Instagram
                 </a>
               )}
               {socialMedia?.youtube && (
@@ -93,58 +103,20 @@ export default function SiteFooter({
                   href={socialMedia.youtube}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm hover:text-white transition-colors"
+                  className="block text-sm hover:text-white"
                 >
                   YouTube
                 </a>
               )}
-              {socialMedia?.twitter && (
-                <a
-                  href={socialMedia.twitter}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm hover:text-white transition-colors"
-                >
-                  Twitter
-                </a>
-              )}
-              {socialMedia?.linkedin && (
-                <a
-                  href={socialMedia.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm hover:text-white transition-colors"
-                >
-                  LinkedIn
-                </a>
-              )}
             </div>
-            {location.email && (
-              <a
-                href={`mailto:${location.email}`}
-                className="text-sm hover:text-white transition-colors mt-3 inline-block"
-              >
-                {location.email}
-              </a>
-            )}
           </div>
         </div>
 
-        {/* Copyright */}
-        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm">
-            &copy; {new Date().getFullYear()} {practiceName}. All rights reserved.
-          </p>
-          <p className="text-xs text-gray-500">
-            Powered by{" "}
-            <a
-              href="https://santelishealth.com"
-              className="hover:text-white transition-colors"
-              style={{ color: colorPalette.accent }}
-            >
-              Santelis Health
-            </a>
-          </p>
+        <div
+          className="border-t mt-8 pt-8 text-sm text-center"
+          style={{ borderColor: colorPalette.neutral }}
+        >
+          &copy; {new Date().getFullYear()} {providerName || practiceName}. All rights reserved.
         </div>
       </div>
     </footer>

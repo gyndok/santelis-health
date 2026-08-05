@@ -1,3 +1,5 @@
+"use client";
+
 import type { Provider, ColorPalette } from "@/types";
 
 interface SiteHeroProps {
@@ -19,11 +21,119 @@ export default function SiteHero({
   bookingUrl,
   heroImageUrl,
 }: SiteHeroProps) {
-  const providerDisplayName = `Dr. ${provider.firstName} ${provider.lastName}, ${provider.credentials}`;
+  const providerDisplayName = `${provider.firstName} ${provider.lastName}, ${provider.credentials}`;
+  const btnPrimaryBg = colorPalette.buttonPrimaryBg || colorPalette.primaryDark;
+  const btnPrimaryText = colorPalette.buttonPrimaryText || "#ffffff";
+  const btnSecBorder = colorPalette.buttonSecondaryBorder || colorPalette.primary;
+  const btnSecText = colorPalette.buttonSecondaryText || colorPalette.primary;
 
+  // If provider has a photo, use split layout (light background, photo on right)
+  // Otherwise use full-width gradient hero
+  const hasDoctorPhoto = !!provider.photoUrl;
+
+  if (hasDoctorPhoto) {
+    return (
+      <section
+        className="relative min-h-[500px] flex items-center overflow-hidden"
+        style={{ background: `linear-gradient(135deg, #fff 0%, ${colorPalette.accent}40 100%)` }}
+      >
+        {heroImageUrl && (
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url(${heroImageUrl})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              opacity: 0.25,
+            }}
+          />
+        )}
+        <div className="container mx-auto px-4 py-16 relative z-10">
+          <div className="flex flex-col md:flex-row items-center gap-12">
+            {/* Text side */}
+            <div className="flex-1 max-w-xl text-center md:text-center">
+              {provider.title && (
+                <p
+                  className="text-sm font-semibold tracking-widest uppercase mb-3"
+                  style={{ color: colorPalette.primary }}
+                >
+                  {provider.title.length > 60
+                    ? provider.title.split("|").map((s) => s.trim()).join(" & ")
+                    : provider.title}
+                </p>
+              )}
+              <h1
+                className="text-4xl md:text-5xl font-bold leading-tight mb-4"
+                style={{ color: colorPalette.neutralDark }}
+              >
+                {providerDisplayName}
+              </h1>
+              {tagline && (
+                <p
+                  className="italic text-lg mb-8"
+                  style={{ color: colorPalette.primary }}
+                >
+                  &ldquo;{tagline}&rdquo;
+                </p>
+              )}
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <a
+                  href={bookingUrl || "#appointment"}
+                  className="inline-flex items-center justify-center font-semibold px-8 py-3 rounded-lg transition-colors"
+                  style={{
+                    backgroundColor: btnPrimaryBg,
+                    color: btnPrimaryText,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = colorPalette.primary;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = btnPrimaryBg;
+                  }}
+                >
+                  Book Appointment
+                </a>
+                <a
+                  href={`tel:${phone.replace(/[^\d+]/g, "")}`}
+                  className="inline-flex items-center justify-center font-semibold px-8 py-3 rounded-lg border-2 transition-colors"
+                  style={{
+                    borderColor: btnSecBorder,
+                    color: btnSecText,
+                    backgroundColor: "transparent",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = btnSecBorder;
+                    e.currentTarget.style.color = "#ffffff";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                    e.currentTarget.style.color = btnSecText;
+                  }}
+                >
+                  Call {phone}
+                </a>
+              </div>
+            </div>
+
+            {/* Photo side */}
+            <div className="flex-shrink-0">
+              <div className="w-64 h-80 md:w-80 md:h-96 rounded-2xl overflow-hidden shadow-xl">
+                <img
+                  src={provider.photoUrl}
+                  alt={providerDisplayName}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Fallback: full-width gradient hero (no doctor photo)
   return (
     <section className="relative overflow-hidden">
-      {/* Background: image with Ken Burns or gradient fallback */}
       {heroImageUrl ? (
         <>
           <div
@@ -50,7 +160,6 @@ export default function SiteHero({
         />
       )}
 
-      {/* Content */}
       <div className="relative py-20 md:py-32">
         <div className="container mx-auto px-4 max-w-4xl text-center">
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">
@@ -66,12 +175,6 @@ export default function SiteHero({
           )}
           <p className="text-lg md:text-xl text-white/80 mb-10">
             {providerDisplayName}
-            {provider.title && (
-              <>
-                <br />
-                <span className="text-base text-white/60">{provider.title}</span>
-              </>
-            )}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -95,7 +198,6 @@ export default function SiteHero({
         </div>
       </div>
 
-      {/* Ken Burns keyframes */}
       <style>{`
         @keyframes kenBurns {
           0% { transform: scale(1.0); }

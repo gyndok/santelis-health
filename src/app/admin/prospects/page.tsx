@@ -298,11 +298,19 @@ export default function AdminProspectsPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b px-6 py-4">
-        <h1 className="text-2xl font-bold text-gray-900">Prospect Pipeline</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Discover, scrape, and qualify doctor practices
-        </p>
+      <div className="bg-white border-b px-6 py-4 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Prospect Pipeline</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Discover, scrape, and qualify doctor practices
+          </p>
+        </div>
+        <a
+          href="/admin/practices"
+          className="text-sm font-medium text-teal-600 hover:text-teal-700 transition-colors"
+        >
+          Practices &rarr;
+        </a>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-6 space-y-6">
