@@ -17,6 +17,7 @@ import {
   Check,
 } from "lucide-react";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
+import { specialtyConfigs } from "@/config/specialties";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -202,9 +203,10 @@ function DashboardContent() {
           ))}
         </div>
 
-        {/* Editor panel */}
+        {/* Editor panel — keyed on previewKey so tabs remount with fresh
+            server data after each save (their edit state seeds from props) */}
         <div className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-2xl">
+          <div className="max-w-2xl" key={previewKey}>
             {activeTab === "practice" && (
               <PracticeInfoTab practice={practice} onSave={(body) => handleSave("practice", body)} saving={saving} />
             )}
@@ -292,8 +294,13 @@ function PracticeInfoTab({
         <label className="block">
           <span className="text-sm font-medium text-gray-700">Specialty</span>
           <select value={specialty} onChange={(e) => setSpecialty(e.target.value)} className="mt-1 w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-            {["obgyn","family-medicine","dermatology","orthopedics","pediatrics","internal-medicine","med-spa","cardiology","urology","ent"].map(s => (
-              <option key={s} value={s}>{s.replace("-"," ").replace(/\b\w/g,c=>c.toUpperCase())}</option>
+            {!specialty && (
+              <option value="" disabled>
+                Select a specialty…
+              </option>
+            )}
+            {Object.entries(specialtyConfigs).map(([slug, cfg]) => (
+              <option key={slug} value={slug}>{cfg.label}</option>
             ))}
           </select>
         </label>
