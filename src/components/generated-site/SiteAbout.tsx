@@ -2,6 +2,7 @@
 
 import type { Provider, ColorPalette } from "@/types";
 import { providerDisplayName as formatProviderName } from "@/lib/site-format";
+import { withAlpha } from "@/lib/color";
 
 interface SiteAboutProps {
   provider: Provider;
@@ -62,7 +63,7 @@ export default function SiteAbout({ provider, colorPalette }: SiteAboutProps) {
                   <div
                     key={i}
                     className="rounded-xl p-4 text-center"
-                    style={{ backgroundColor: `${colorPalette.accent}4d` }}
+                    style={{ backgroundColor: withAlpha(colorPalette.accent, 0.3) }}
                   >
                     <p
                       className="font-bold text-sm"

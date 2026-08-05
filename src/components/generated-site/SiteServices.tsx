@@ -23,6 +23,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { Service, ColorPalette } from "@/types";
+import { withAlpha } from "@/lib/color";
 
 const iconMap: Record<string, LucideIcon> = {
   Baby, Scissors, Heart, HeartPulse, Users, Scale, Microscope,
@@ -37,7 +38,7 @@ interface SiteServicesProps {
 }
 
 export default function SiteServices({ services, colorPalette, practiceName }: SiteServicesProps) {
-  const sectionBg = colorPalette.sectionAltBg || `${colorPalette.accent}33`;
+  const sectionBg = colorPalette.sectionAltBg || withAlpha(colorPalette.accent, 0.2);
 
   return (
     <section

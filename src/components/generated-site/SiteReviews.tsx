@@ -2,6 +2,7 @@
 
 import type { Review, ColorPalette } from "@/types";
 import { starString, initials, formatReviewDate } from "@/lib/site-format";
+import { withAlpha } from "@/lib/color";
 
 interface SiteReviewsProps {
   reviews: Review[];
@@ -20,7 +21,7 @@ export default function SiteReviews({
 
   const avgRating =
     reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
-  const sectionBg = colorPalette.sectionAltBg || `${colorPalette.accent}4d`;
+  const sectionBg = colorPalette.sectionAltBg || withAlpha(colorPalette.accent, 0.3);
   const btnPrimaryBg = colorPalette.buttonPrimaryBg || colorPalette.primaryDark;
   const btnPrimaryText = colorPalette.buttonPrimaryText || "#ffffff";
   const btnSecBorder = colorPalette.buttonSecondaryBorder || colorPalette.neutral;
@@ -65,7 +66,7 @@ export default function SiteReviews({
                 <div
                   className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
                   style={{
-                    backgroundColor: `${colorPalette.primary}33`,
+                    backgroundColor: withAlpha(colorPalette.primary, 0.2),
                     color: colorPalette.primaryDark,
                   }}
                 >

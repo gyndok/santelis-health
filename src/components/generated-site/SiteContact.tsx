@@ -2,6 +2,7 @@
 
 import type { OfficeLocation, ColorPalette, IntakeForm } from "@/types";
 import { formatOfficeHours } from "@/lib/site-format";
+import { withAlpha } from "@/lib/color";
 
 interface SiteContactProps {
   location: OfficeLocation;
@@ -141,14 +142,14 @@ export default function SiteContact({
                       rel="noopener noreferrer"
                       className="text-sm px-4 py-2 rounded-lg font-medium transition-colors"
                       style={{
-                        backgroundColor: `${colorPalette.primary}1a`,
+                        backgroundColor: withAlpha(colorPalette.primary, 0.1),
                         color: colorPalette.primaryDark,
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = `${colorPalette.primary}33`;
+                        e.currentTarget.style.backgroundColor = withAlpha(colorPalette.primary, 0.2);
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = `${colorPalette.primary}1a`;
+                        e.currentTarget.style.backgroundColor = withAlpha(colorPalette.primary, 0.1);
                       }}
                     >
                       {form.name} &rarr;

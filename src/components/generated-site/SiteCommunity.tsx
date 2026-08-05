@@ -3,6 +3,7 @@
 import { Baby, Camera, Heart, Users, ArrowRight } from "lucide-react";
 import type { ColorPalette } from "@/types";
 import type { LucideIcon } from "lucide-react";
+import { withAlpha } from "@/lib/color";
 
 interface CommunityConfig {
   heading: string;
@@ -26,14 +27,14 @@ export default function SiteCommunity({ community, colorPalette }: SiteCommunity
   return (
     <section
       className="py-20 relative overflow-hidden"
-      style={{ backgroundColor: `${colorPalette.accent}33` }}
+      style={{ backgroundColor: withAlpha(colorPalette.accent, 0.2) }}
     >
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-3xl mx-auto text-center">
           {/* Icon */}
           <div
             className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
-            style={{ backgroundColor: `${colorPalette.primary}26` }}
+            style={{ backgroundColor: withAlpha(colorPalette.primary, 0.15) }}
           >
             <Baby
               className="w-8 h-8"
