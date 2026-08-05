@@ -16,10 +16,14 @@ interface GeneratedSiteProps {
 
 export default function GeneratedSite({ config }: GeneratedSiteProps) {
   const { branding, providers, services, locations, reviews, integrations } = config;
-  const primaryProvider = providers[0];
-  const primaryLocation = locations[0];
+  // Providers/locations are editable in the dashboard and may be empty;
+  // render a degraded page rather than crashing.
+  const primaryProvider: typeof providers[number] | undefined = providers[0];
+  const primaryLocation: typeof locations[number] | undefined = locations[0];
   const bookingUrl = integrations.appointmentBooking?.url;
-  const providerName = `${primaryProvider.firstName} ${primaryProvider.lastName}, ${primaryProvider.credentials}`;
+  const providerName = primaryProvider
+    ? `${primaryProvider.firstName} ${primaryProvider.lastName}, ${primaryProvider.credentials}`
+    : config.practiceName;
 
   return (
     <div
@@ -41,26 +45,32 @@ export default function GeneratedSite({ config }: GeneratedSiteProps) {
         bookingUrl={bookingUrl}
       />
 
-      <SiteHero
-        practiceName={config.practiceName}
-        tagline={branding.tagline}
-        provider={primaryProvider}
-        colorPalette={branding.colorPalette}
-        phone={primaryLocation.phone}
-        bookingUrl={bookingUrl}
-        heroImageUrl={branding.heroImageUrl}
-      />
+      {primaryProvider && (
+        <SiteHero
+          practiceName={config.practiceName}
+          tagline={branding.tagline}
+          provider={primaryProvider}
+          colorPalette={branding.colorPalette}
+          phone={primaryLocation?.phone ?? ""}
+          bookingUrl={bookingUrl}
+          heroImageUrl={branding.heroImageUrl}
+        />
+      )}
 
-      <SiteAbout
-        provider={primaryProvider}
-        colorPalette={branding.colorPalette}
-      />
+      {primaryProvider && (
+        <SiteAbout
+          provider={primaryProvider}
+          colorPalette={branding.colorPalette}
+        />
+      )}
 
-      <SiteProviders
-        providers={providers}
-        colorPalette={branding.colorPalette}
-        bookingUrl={bookingUrl}
-      />
+      {providers.length > 0 && (
+        <SiteProviders
+          providers={providers}
+          colorPalette={branding.colorPalette}
+          bookingUrl={bookingUrl}
+        />
+      )}
 
       <SiteServices
         services={services}
@@ -87,23 +97,27 @@ export default function GeneratedSite({ config }: GeneratedSiteProps) {
         practiceName={config.practiceName}
       />
 
-      <SiteContact
-        location={primaryLocation}
-        colorPalette={branding.colorPalette}
-        bookingUrl={bookingUrl}
-        practiceName={config.practiceName}
-        intakeForms={integrations.intakeForms}
-        languages={primaryProvider.languages}
-      />
+      {primaryLocation && (
+        <SiteContact
+          location={primaryLocation}
+          colorPalette={branding.colorPalette}
+          bookingUrl={bookingUrl}
+          practiceName={config.practiceName}
+          intakeForms={integrations.intakeForms}
+          languages={primaryProvider?.languages ?? []}
+        />
+      )}
 
-      <SiteFooter
-        practiceName={config.practiceName}
-        location={primaryLocation}
-        colorPalette={branding.colorPalette}
-        socialMedia={integrations.socialMedia}
-        providerName={providerName}
-        bookingUrl={bookingUrl}
-      />
+      {primaryLocation && (
+        <SiteFooter
+          practiceName={config.practiceName}
+          location={primaryLocation}
+          colorPalette={branding.colorPalette}
+          socialMedia={integrations.socialMedia}
+          providerName={providerName}
+          bookingUrl={bookingUrl}
+        />
+      )}
     </div>
   );
 }
